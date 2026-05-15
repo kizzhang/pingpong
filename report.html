@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Pingpong / Novelty Collapse 综合技术报告 (2026-05-15)</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root { --fg:#1a1a1a; --muted:#666; --bg:#fafafa; --accent:#0a5; --warn:#c70; --bad:#c33; --code:#f0f0f0; --border:#ddd; }
+body { max-width: 920px; margin: 2em auto; padding: 0 1.5em; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; line-height: 1.7; color: var(--fg); background: var(--bg); }
+h1 { border-bottom: 3px solid var(--fg); padding-bottom: 0.3em; }
+h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.2em; margin-top: 2em; }
+h3 { color: #333; margin-top: 1.5em; }
+h4 { color: #555; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.93em; }
+th, td { border: 1px solid var(--border); padding: 0.5em 0.7em; text-align: left; vertical-align: top; }
+th { background: #eee; }
+code { background: var(--code); padding: 0.1em 0.4em; border-radius: 3px; font-size: 0.9em; }
+blockquote { border-left: 4px solid var(--accent); padding: 0.4em 1em; margin: 1em 0; background: #fff; color: #333; }
+.warn { background: #fff8e0; border-left: 4px solid var(--warn); padding: 0.4em 1em; margin: 1em 0; }
+.bad { background: #fee; border-left: 4px solid var(--bad); padding: 0.4em 1em; margin: 1em 0; }
+.good { background: #efe; border-left: 4px solid var(--accent); padding: 0.4em 1em; margin: 1em 0; }
+.muted { color: var(--muted); font-size: 0.92em; }
+.cite { color: #048; font-size: 0.92em; }
+a { color: #058; }
+hr { border: 0; border-top: 2px dashed #ccc; margin: 2.5em 0; }
+.toc { background: #fff; border: 1px solid var(--border); padding: 1em 1.5em; border-radius: 6px; }
+.toc ol { margin: 0.3em 0; }
+.meta { color: var(--muted); font-size: 0.92em; }
+.tag { display: inline-block; padding: 0.05em 0.5em; border-radius: 3px; font-size: 0.8em; margin-right: 0.3em; }
+.tag-strong { background: #cea; color: #042; }
+.tag-mid { background: #fec; color: #630; }
+.tag-weak { background: #fcc; color: #600; }
+.tag-unverified { background: #ddd; color: #333; }
+.formula-box { background: #fff; border: 1px solid var(--border); padding: 0.8em 1em; margin: 1em 0; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Pingpong vs. Novelty Collapse:<br>
+<span style="font-size:0.7em; font-weight:normal;">异质模型 + 跨会话采样的文献证据综合 (Q2 2026)</span></h1>
+
+<p class="meta">
+<strong>报告日期</strong>: 2026-05-15 ·
+<strong>覆盖范围</strong>: 2019–2026 (重点 2024–2026) ·
+<strong>方法</strong>: 三条专题线 (subagent 撰写) + 独立 reviewer 审计 + 最终合并 ·
+<strong>引用</strong>: 70+ 条载荷引用,reviewer 复核
+</p>
+
+<div class="warn">
+<strong>审计与修正声明</strong>:本报告由四个 subagent 协作生成 (三条线撰写 + 一条线审计);审计阶段发现若干引用错误,本最终版已应用以下修正:
+<ol>
+<li>删除 "Stanford AI Index 2026 per-model sycophancy 百分比"——三个具体数字 (Claude Sonnet 4 36% / GPT-5.1 41% / Gemini 2.5 Pro 30%) 在 Stanford HAI 公开材料中无法独立核实,改用研究中实际报告的总体数字 (~49% AI 比人类多确认率)。</li>
+<li>MAR HumanEval 数字修正 82.7 → <strong>82.6</strong> (论文 abstract: 76.4→82.6, +6.2 点)。</li>
+<li>RND 论文 [arXiv:2503.01508] 作者修正:不是 Padmakumar et al.,实为 <strong>Wang, Cui, Jiang, Yan</strong>。</li>
+<li>Padmakumar &amp; He [arXiv:2309.05196] venue 修正为 <strong>ICLR 2024</strong> (不是 EMNLP 2023)。</li>
+<li>Si 等人 [arXiv:2506.20803] venue 表述为 "submitted to ICLR 2026,接收状态待 OpenReview 公开列表核实"。</li>
+<li>TreeQuest (Sakana 开源 tree search 库) 与 RL Conductor / Fugu (路由 GPT-5/Claude Sonnet 4/Gemini 2.5 Pro 的具体编排系统) 区分;之前的混淆已修正。</li>
+<li>Huang et al. [arXiv:2310.01798] 的 "GPT-3.5 self-correct 后 74.7%" 表述为 "保持初答的比例",并非 75.9% → 74.7% 的简单差值。</li>
+<li>arXiv:2505.15392 "22–61%" 为<strong>锚定</strong>问题率而非 sycophancy 率。</li>
+<li>Sanna 撤稿表述:其 ≥8 篇论文被撤,但 2002 OBHDP 那篇本身的撤稿状态不在公开核实范围内,因此表述为 "Sanna 多篇后被撤" 而非具体指认该篇。</li>
+<li>Du et al. [arXiv:2305.14325] 的 GSM8K "+10.8 pts" 标注 <code>[需核对具体表格条件]</code>——独立搜索未能找到该具体数字。</li>
+</ol>
+</div>
+
+<div class="toc">
+<strong>目录</strong>
+<ol>
+<li><a href="#exec">执行摘要 (Executive Summary)</a></li>
+<li><a href="#lineA">Line A:LLM 多样性与模式坍缩</a>
+  <ol>
+    <li>概念分类</li>
+    <li>理论基础 (KL 正则化 + Preference Collapse + KL 分解)</li>
+    <li>实证证据</li>
+    <li>2026 缓解技术</li>
+    <li>开放空白</li>
+    <li>批判综合</li>
+  </ol>
+</li>
+<li><a href="#lineB">Line B:多智能体辩论、自我批评、谄媚与对抗式提示</a>
+  <ol>
+    <li>MAD 与 Degeneration-of-Thought</li>
+    <li>Martingale 理论天花板与 2026 三段论</li>
+    <li>对 MAD 的批判性评估</li>
+    <li>自我批评的局限</li>
+    <li>谄媚与论辩回音</li>
+    <li>锚定效应</li>
+    <li>认知科学背景</li>
+    <li>跨会话 vs 同会话证据</li>
+  </ol>
+</li>
+<li><a href="#lineC">Line C:自主 AI 研究代理</a>
+  <ol>
+    <li>系统时间线</li>
+    <li>模型异构性架构对比</li>
+    <li>新颖性度量方法</li>
+    <li>Si 2026 Ideation-Execution Gap</li>
+    <li>独立批判评估</li>
+    <li>FARS 取证</li>
+    <li>判决</li>
+  </ol>
+</li>
+<li><a href="#synth">综合:对用户 pingpong 假设的最终评估</a></li>
+<li><a href="#experiment">实验设计建议</a></li>
+<li><a href="#sources">来源列表</a></li>
+</ol>
+</div>
+
+<h2 id="exec">1. 执行摘要</h2>
+
+<p>用户的核心研究问题:<strong>在单一会话内让 LLM 反复唱反调 (pingpong) 能否逃逸 AI 的 "novelty collapse",更进一步,用<em>异质模型 + 跨会话独立采样</em>是否更能扩展新颖性?</strong></p>
+
+<p>2026 年 5 月的文献状态可总结为五条:</p>
+
+<ol>
+<li><strong>"Novelty collapse" 不是一个现象,而是至少四个</strong>:(a) 单输入跨样本多样性下降 (RLHF 后);(b) 跨用户社会层面同质化;(c) 解码层面 in-context 吸引子;(d) 世代递归模型坍缩。混用导致大量伪争论 [Schaeffer/Kapoor arXiv:2503.03150]。</li>
+
+<li><strong>(a) 在理论上已经被 2026 年的 Preference Collapse Theorem 形式化</strong> [Raheja arXiv:2601.06108,基于 Xiao arXiv:2405.16455]:在 Bradley–Terry 偏好模型 + 无正则化下,多数偏好以概率 1 抹除少数偏好。<strong>KL 项本身被诊断为根源</strong> [arXiv:2511.08594]:$D_\text{KL}(\pi \| \pi_0)$ 把熵和交叉熵用同一系数耦合,迫使多样性损失。</li>
+
+<li><strong>单会话同质 pingpong 在理论上有严格上界</strong>:Debate-or-Vote 鞅定理 [arXiv:2508.17536] 证明同构智能体辩论的期望正确率不增益,2026 年 Demystifying MAD [arXiv:2601.19921] 与 AceMAD [arXiv:2603.06801] 共同确认该定理的"突破"都必须经过<strong>引入异质性</strong>这条路径。</li>
+
+<li><strong>用户 refined 假设 (异质模型 + 跨会话) 是 2026 SOTA 事实架构</strong>:Sakana v2、Kosmos、FARS 都按 agent 角色路由异构模型;Sakana 的 RL Conductor (Fugu) 训练 7B 路由器调度 GPT-5、Claude Sonnet 4、Gemini 2.5 Pro 三大闭源 + 4 开源模型。但是<strong>没有任何已发表研究做了控制变量消融</strong>,把"异构性"与"采样多样性"二者解耦——这是用户的真正学术空白。</li>
+
+<li><strong>但 Si 2026 Ideation-Execution Gap 提供了最严厉的负面证据</strong>:[arXiv:2506.20803] 让 43 位专家执行 ~100h 实施 LLM-vs-人类 idea,执行后 LLM idea 在 novelty (-1.049)、excitement (-1.760)、effectiveness (-1.879)、overall 四维全部显著下降,人类 idea 几乎不掉,<strong>排名反转</strong>。所有"仅 ideation 评估" (包括 FARS 的 5.05) 都被 upward-biased 1–2 分。</li>
+</ol>
+
+<p><strong>因此,本报告的最终建议</strong>:用户的方向值得继续推进,但实验设计必须 (a) 显式解耦"异构 ⊥ 采样",(b) 包含执行层评估而非仅 ideation 评分,(c) 在多样性度量上同时报告 distinct-n、嵌入空间方差与 R-Diverse 提出的 "skill-level diversity"。详细实验设计见 §6。</p>
+
+<hr>
+
+<h2 id="lineA">2. Line A:LLM 多样性与模式坍缩</h2>
+
+<h3>2.1 概念分类</h3>
+
+<p>"坍缩"在文献中至少混淆四种现象,本节给出操作定义,这是后续讨论的本体论前提。</p>
+
+<table>
+<thead>
+<tr><th>类型</th><th>操作定义</th><th>标准度量</th><th>代表文献</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>(a) 单输入跨样本多样性坍缩</strong></td><td>对同一 prompt 重复采样 N 次,输出在词汇/语义空间分布熵下降</td><td>distinct-n、Self-BLEU、EAD、sentence-BERT 余弦方差</td><td>Kirk et al. [arXiv:2310.06452, 2023-10-10, ICLR 2024]</td></tr>
+<tr><td><strong>(b) 跨用户社会同质化</strong></td><td>不同用户在同一任务下,用同一 LLM 后产出的群体方差下降</td><td>群体语义协方差、Jaccard 重叠、ANOVA between-subjects</td><td>Doshi &amp; Hauser [Sci Adv 10:eadn5290, 2024-07-12];Anderson et al. [arXiv:2402.01536]</td></tr>
+<tr><td><strong>(c) 解码层 in-context 吸引子</strong></td><td>在自回归或递归 prompt 链中,状态轨迹收敛至不动点或周期轨道</td><td>嵌入空间轨迹分析、k-周期检测、Lyapunov 指数近似</td><td>Holtzman et al. [arXiv:1904.09751, ICLR 2020];Wang/Li/Yan/Cheng/Zhang [arXiv:2502.15208, ACL 2025 Long]</td></tr>
+<tr><td><strong>(d) 世代递归模型坍缩</strong></td><td>用上代模型生成数据训练下代,分布尾部逐代消失</td><td>分布支持集面积、困惑度漂移、尾部 KL</td><td>Shumailov et al. [Nature 631:755-759, 2024-07-24]</td></tr>
+</tbody>
+</table>
+
+<p>Schaeffer/Kapoor [arXiv:2503.03150, 2025-03-05] 立场论文盘点了至少 8 种相互冲突的 "model collapse" 定义,警告混用造成的伪争论。这是该分类工作的元综述基础。<span class="tag tag-strong">证据强</span></p>
+
+<h3>2.2 理论基础</h3>
+
+<h4>2.2.1 KL 正则化 RLHF 目标的隐式尾部压缩</h4>
+
+<p>标准 RLHF 目标在策略 $\pi$ 上对参考策略 $\pi_0$ 施加 KL 约束:</p>
+
+<div class="formula-box">
+$$\max_{\pi} \; \mathbb{E}_{x \sim \mathcal{D},\, y \sim \pi(\cdot|x)} [r(x, y)] - \beta \, D_{\mathrm{KL}}\!\big(\pi(\cdot|x) \,\big\|\, \pi_0(\cdot|x)\big)$$
+</div>
+
+<p>闭式最优解 (Korbak/Khalifa f-DPG 谱系 [Go et al. 2023, PMLR v202/go23a]) 为:</p>
+
+<div class="formula-box">
+$$\pi^*(y \mid x) \;=\; \frac{1}{Z(x)} \, \pi_0(y \mid x) \, \exp\!\Big(\frac{r(x, y)}{\beta}\Big)$$
+</div>
+
+<p>将 reward 通过 <em>exponential tilting</em> 注入参考分布。当 $r$ 在某 mode 上明显占优时,$\exp(r/\beta)$ 以指数速率压扁所有其他 mode,即便其参考概率非零。这是 (a) 类坍缩的最干净理论根源。<span class="tag tag-strong">证据强 (闭式推导)</span></p>
+
+<h4>2.2.2 Preference Collapse Theorem</h4>
+
+<p>Xiao et al. [arXiv:2405.16455, 2024-05-26] 首次提出 "preference collapse" 概念;Raheja et al. [arXiv:2601.06108, 2026-01-03] 在 "From RLHF to Direct Alignment" 中给出统一三轴框架 (preference model × regularizer × data distribution)。关键陈述 (释义):</p>
+
+<blockquote>
+设偏好数据由真实偏好分布 $P^*$ 生成,包含主导偏好 $y_\text{maj}$ (频率 $p$) 与少数偏好 $y_\text{min}$ (频率 $1-p$,$p > 1/2$)。在无正则化的 reward 最大化下,对足够大样本量与足够灵活策略类,最优策略 $\hat\pi$ 满足 $\hat\pi(y_\text{maj} \mid x) \to 1$——多数偏好对其余的相对质量被不成比例放大,最优策略以概率 1 输出 $y_\text{maj}$ 而完全抹除 $y_\text{min}$。
+</blockquote>
+
+<p><strong>直觉</strong>:BT 模型下 reward 差异 $\Delta r$ 是 logit;策略以 softmax/argmax 映射回行为;任何正向 $\Delta r$ 在无温度/正则化时被放大为 0/1 输出。<span class="tag tag-mid">证据中-强 (数学清晰;实证仅小规模 alignment 基准,未在前沿模型验证)</span></p>
+
+<div class="warn">
+<strong>归属注</strong>:Preference Collapse 概念由 Xiao 等 2024 提出;Raheja 等 2026 是综合 unification 框架,其 Theorem 5.2 是否独立证明或综述 Xiao 工作,需查原文。本报告引用时应同列两篇。
+</div>
+
+<h4>2.2.3 KL 项本身的病理 (Soft Preference Learning)</h4>
+
+<p>Soft Preference Learning [arXiv:2511.08594, 2025-11-13]<sup class="muted">[首作姓氏待核对]</sup> 的核心论点:$D_{\mathrm{KL}}(\pi \| \pi_0)$ 可分解为</p>
+
+<div class="formula-box">
+$$D_{\mathrm{KL}}(\pi \,\|\, \pi_0) \;=\; \underbrace{\mathbb{E}_{\pi}[-\log \pi_0]}_{\text{交叉熵 CE — 把 } \pi \text{ 拉向 } \pi_0 \text{ 的众数}} \;-\; \underbrace{H(\pi)}_{\text{策略熵 — 鼓励多样性}}$$
+</div>
+
+<p>两项方向相反但<strong>强度被同一系数 $\beta$ 耦合</strong>。reward 信号驱动 $\pi$ 偏离 $\pi_0$ 时,CE 增大主导 $H(\pi)$ 收缩,系统性高估多数意见。SPL 解耦为独立系数 $\beta_{\text{CE}}, \beta_H$:</p>
+
+<div class="formula-box">
+$$\mathcal{L}_{\text{SPL}} = -\mathbb{E}_\pi[r] + \beta_{\text{CE}} \, \mathbb{E}_\pi[-\log \pi_0] - \beta_H \, H(\pi)$$
+</div>
+
+<p>同思路还有 H-DPO (Entropy-Controllable DPO [arXiv:2411.07595, 2024-11])。<span class="tag tag-mid">证据中 (理论分解干净,实证规模未独立复现)</span></p>
+
+<h3>2.3 实证证据 (按现象分)</h3>
+
+<h4>2.3.1 (a) 单输入坍缩——Kirk et al.</h4>
+
+<p>[arXiv:2310.06452, ICLR 2024]。模型:LLaMA-7B 系列 (SFT/RM/RLHF 三阶段对照)。任务:TL;DR 摘要、Anthropic HH 对话、AlpacaFarm。度量:EAD (Expectation-Adjusted Distinct)、Self-BLEU、Sent-BERT 嵌入余弦距离。<strong>核心结论</strong>:RLHF 相对 SFT 在所有多样性度量上显著下降,在 per-input 多样性上下降幅度 &gt; 30%(多数度量);同时 OOD generalization 提升,呈现"多样性 ↔ 泛化"权衡。<span class="tag tag-mid">证据中-强</span> 已知弱点:仅 ≤13B 开源模型,DPO/iterative RLHF/Constitutional AI 等较新对齐配方未覆盖。</p>
+
+<h4>2.3.2 (b) 跨用户同质化</h4>
+
+<ul>
+<li><strong>Padmakumar &amp; He</strong> [arXiv:2309.05196, <strong>ICLR 2024</strong>]:论辩文写作,三组 (GPT-3 / InstructGPT / 无 AI)。结论:<strong>仅 InstructGPT 组</strong>用户间相似度显著上升,GPT-3 组无显著效应——<em>暗示是 instruction tuning 而非基础语言建模导致同质化</em>。<span class="tag tag-mid">证据中 (N≈40 偏小,单一任务)</span></li>
+<li><strong>Doshi &amp; Hauser</strong> [Sci Adv 10:eadn5290, DOI:10.1126/sciadv.adn5290, 2024-07-12]:短故事创作。N≈300。三条件 (无 AI / 1 个 ChatGPT 想法 / 5 个 ChatGPT 想法)。<strong>个体层</strong>:less-creative writers 在 5-idea 条件下 novelty +10.7%、usefulness +11.5%;<strong>群体层</strong>:AI 辅助组故事的成对余弦相似度显著高于无 AI 组——<em>"个体创造 ↑、集体多样性 ↓"的社会困境</em>。<span class="tag tag-strong">证据强 (Sci Adv,大样本,预注册)</span></li>
+<li><strong>Anderson, Shah, Kreminski</strong> [arXiv:2402.01536, C&amp;C 2024]:创意构思,N=36。机制定位为 <strong>"LLM 对不同用户给出相似建议"</strong>,而非个体固着 (fixation)——这是关键的因果归因。<span class="tag tag-weak">证据弱-中 (N 极小)</span></li>
+</ul>
+
+<h4>2.3.3 (c) 解码层 in-context 吸引子</h4>
+
+<ul>
+<li><strong>Holtzman et al.</strong> [arXiv:1904.09751, ICLR 2020]:奠基论文,likelihood-as-decoding 导致重复、平淡。<span class="tag tag-strong">证据强 (反复复现)</span></li>
+<li><strong>Wang/Li/Yan/Cheng/Zhang</strong> [arXiv:2502.15208, ACL 2025 Long]:<em>"Unveiling Attractor Cycles in Large Language Models"</em>。设定:$y_{t+1} = \text{LLM}(\text{paraphrase}(y_t))$。多个开源模型上观察到<strong>2-周期吸引子</strong>,2-periodicity 度量经常 &gt; 0.80;即便升温、交替使用不同 prompt/LLM 仍然存在。<span class="tag tag-mid">证据中 (多模型复现,缺前沿闭源验证)</span></li>
+<li><strong>"Dynamics of Agentic Loops"</strong> [arXiv:2512.10350, 2025-12, v5 修订到 2026]:把 §c 的 paraphrase 吸引子推广为通用 agentic loops,刻画三种动力学制度:<strong>contractive</strong> (收敛至稳定吸引子)、<strong>oscillatory</strong> (吸引子间环游)、<strong>exploratory</strong> (无界发散)。<em>prompt 设计直接决定 regime</em>。<span class="tag tag-weak">证据弱-中 (框架新,实证案例数有限)</span></li>
+</ul>
+
+<h4>2.3.4 (d) 世代递归坍缩</h4>
+
+<ul>
+<li><strong>Shumailov et al.</strong> [Nature 631:755-759, 2024-07-24]:OPT-125M 链式实验,纯合成数据替换下分布尾部逐代消失;VAE 与 GMM 解析结果。<span class="tag tag-strong">证据强 (Nature)</span> 弱点:完全替换 + 小模型设定与现实背离,这正是 Schaeffer 等的批评点。</li>
+<li><strong>Gerstgrasser et al.</strong> [arXiv:2404.01413]:在<strong>累积</strong> (accumulating) 设定下 (每代合成数据 + 全部历史真实数据),证明测试误差有独立于迭代数的有限上界,坍缩不发生。<span class="tag tag-strong">证据强 (理论 + 多模态)</span></li>
+<li><strong>Schaeffer/Kapoor et al.</strong> [arXiv:2503.03150]:position paper 论证 catastrophic 预测依赖不现实的"完全替换"假设。<span class="tag tag-strong">证据强</span></li>
+</ul>
+
+<p><strong>(d) 综合</strong>:纯替换下成立,累积下不成立;现实数据管线接近累积。对 2026 前沿模型而言,"web 上的 AI 内容污染"是否触发实际坍缩,实证开放。</p>
+
+<h3>2.4 2026 缓解技术</h3>
+
+<table>
+<thead>
+<tr><th>方法</th><th>机制</th><th>报告效果</th><th>证据等级</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Verbalized Sampling (VS)</strong><br>[arXiv:2510.01171, 2025-10]</td><td>training-free prompt:让模型直接口头化候选 + 概率分布 ("Generate 5 jokes and their probabilities")</td><td>创意写作多样性 <strong>1.6–2.1×</strong> 相对直接 prompt;事实性、安全性无下降</td><td><span class="tag tag-mid">中</span></td></tr>
+<tr><td><strong>R-Diverse</strong><br>[arXiv:2602.13103, 2026-02]</td><td>识别两类幻觉:<em>Local Diversity Illusion</em> (batch 内多样性但跨迭代 mode cycling)、<em>Surface Diversity Illusion</em> (问题表面变但推理技能同)。MAP (Memory-Augmented Penalty) + SAM (Skill-Aware Measurement,将问题映射为规范 Python solver)</td><td>self-play 训练改善 (具体数字未核实)</td><td><span class="tag tag-weak">弱-中 (新)</span></td></tr>
+<tr><td><strong>Soft Preference Learning</strong><br>[arXiv:2511.08594, 2025-11]</td><td>entropy 与 cross-entropy 系数解耦</td><td>pass@k (k 大) 准确率 + 语义多样性提升 (具体未核实)</td><td><span class="tag tag-mid">中</span></td></tr>
+<tr><td><strong>H-DPO / Entropy-Controllable DPO</strong><br>[arXiv:2411.07595, 2024-11]</td><td>显式控制熵正则化强度</td><td>多种数学/推理 benchmark 上 pass@k 提升</td><td><span class="tag tag-mid">中</span></td></tr>
+<tr><td><strong>DiverseGRPO</strong><br>[arXiv:2512.21514, 2025-12]</td><td>谱聚类 + early-stage 结构正则。<strong>注意:图像生成域,非 LLM 文本</strong></td><td>语义多样性 +13–18%,质量匹配时新 Pareto 前沿</td><td><span class="tag tag-weak">弱 (单模态)</span></td></tr>
+</tbody>
+</table>
+
+<h3>2.5 2026 开放空白</h3>
+
+<ol>
+<li><strong>前沿模型缺乏系统性同行评议测量</strong>:GPT-5、Claude Opus 4.x、Gemini 3、Kimi K2.5、DeepSeek V4 至 2026-05-15 <strong>没有任一</strong>被独立组在同一多样性度量协议下系统评估并发表。所有公开报告来自第三方博客。</li>
+<li><strong>规模 + 新对齐配方下问题方向存疑</strong>:一派认为更大模型 + DPO/IPO/SimPO 缓解,另一派认为 instruction-tuning 强度上升使 (a)(b) 更严重。无 N≥3 独立实验室跨模型基准。</li>
+<li><strong>测量协议碎片化</strong>:distinct-n / Self-BLEU / EAD / 嵌入方差 / skill-level diversity / verbalized distribution coverage——缺一致基线。</li>
+<li><strong>跨会话/异质模型采样的实证空白</strong>:在采样时混合多模型多 session 是否能突破 Preference Collapse Theorem 上界,几乎无前瞻性研究——<em>这是用户研究方向的真正空白</em>。</li>
+</ol>
+
+<h3>2.6 批判综合 (Line A)</h3>
+
+<table>
+<thead><tr><th>现象</th><th>已确立程度</th><th>用户方案能缓解吗?</th></tr></thead>
+<tbody>
+<tr><td>(a) 单输入坍缩</td><td>基本确立 (开源 ≤13B)</td><td><strong>能</strong>——Preference Collapse Theorem 是<em>单策略</em>陈述;混合 $\pi_1, \dots, \pi_K$ 可恢复尾部支持</td></tr>
+<tr><td>(b) 跨用户同质化</td><td>已确立 (写作/构思任务)</td><td><strong>能</strong>——若每用户调用不同模型,群体协方差应下降</td></tr>
+<tr><td>(c) In-context 吸引子</td><td>部分确立 (paraphrasing 稳健)</td><td><strong>部分</strong>——跨会话打断状态延续,但需刻意 prompt 异质化避免局部 contractive regime</td></tr>
+<tr><td>(d) 世代递归坍缩</td><td>条件性确立 (纯替换下成立)</td><td><strong>基本不能</strong>——这是训练时现象,与采样时混合正交</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="lineB">3. Line B:多智能体辩论、自我批评、谄媚与对抗式提示</h2>
+
+<h3>3.1 MAD 与 Degeneration-of-Thought</h3>
+
+<p>多智能体辩论 (MAD) 由 Du et al. [arXiv:2305.14325, 2023-05-23, ICML 2024] 首次系统化:$N$ 个同构 LLM 实例对同一问题独立给答,在 $T$ 轮中交换中间响应并迭代修订。论文报告 GSM8K、MMLU 数学子集、Chess Move Validity 等任务上的显著提升<sup class="muted">[具体数字 +10.8 pts 来源待核对]</sup>。</p>
+
+<p>Liang et al. [arXiv:2305.19118, 2023-05-30, EMNLP 2024] 形式化了 <em>Degeneration-of-Thought (DoT)</em>:同一 LLM 迭代反思自身输出时陷入"自我一致性陷阱"。可操作化为:</p>
+
+<div class="formula-box">
+$$\mathrm{DoT}(r_{1:T}) \;=\; \frac{1}{T-1}\sum_{t=2}^{T} \mathrm{sim}(r_t, r_{t-1}) - \mathrm{sim}(r_t, r^*)$$
+</div>
+
+<p>其中 $r^*$ 是参考答案。当此值 → 1 时,模型仅在复述自身。Liang 引入 <em>tit-for-tat</em> 机制强制施加显式分歧。</p>
+
+<p>ChatEval [Chan et al., arXiv:2308.07201, ICLR 2024] 为辩手分配异质 <em>persona</em> 来模拟多样性,但<strong>同一模型权重下 persona 仅修改解码分布的偏置项,未改变先验信念分布的支撑集</strong>——这是 persona 多样性的根本局限。</p>
+
+<h3>3.2 Martingale 理论天花板与 2026 三段论</h3>
+
+<p>这是 2025 末–2026 年最干净的理论进展线,可视为三段论:</p>
+
+<h4>3.2.1 Debate-or-Vote 鞅定理 (Choi/Zhu/Li 2025)</h4>
+
+<p>[arXiv:2508.17536, 2025-08-24]。将 MAD 解构为 "多数投票" + "辩手交互" 两层,在 Dirichlet-Compound-Multinomial (DCM) 先验下证明:</p>
+
+<div class="formula-box">
+设 $B_t = \Pr(\text{correct} \mid \mathcal{F}_t)$ 为智能体在第 $t$ 轮、给定历史 $\sigma$-代数 $\mathcal{F}_t$ 时对正确答案的后验信念。在对称同构智能体与无偏更新假设下:
+$$\boxed{\;\mathbb{E}[B_{t+1} \mid \mathcal{F}_t] \;=\; B_t\;}$$
+即 $\{B_t\}$ 是关于 $\{\mathcal{F}_t\}$ 的鞅。
+</div>
+
+<p><strong>直接推论</strong>:$\mathbb{E}[B_T] = \mathbb{E}[B_0]$,无论辩论多少轮,期望正确率不会随轮数提高。MAD 在期望意义上退化为对 $t=0$ 时刻多数投票的随机重采样。</p>
+
+<p><strong>简要推导</strong>:Bayes 视角下,辩手 $i$ 的更新为</p>
+$$B^{(i)}_{t+1} \;\propto\; B^{(i)}_t \cdot L(m_t \mid \text{correct})$$
+<p>若所有辩手共享同一似然 $L$ 且消息分布对称,$\mathbb{E}_{m_t}[L(m_t \mid \text{correct})] = L(m_t \mid \text{incorrect})$ 在边际化下退化,更新无信息增益,鞅性成立。</p>
+
+<p><strong>实证</strong>:论文在 7 个 NLP 基准上验证,多数投票单独解释 MAD 的绝大部分增益。</p>
+
+<h4>3.2.2 Demystifying MAD (2026-01,理论确认)</h4>
+
+<p>Zhu et al. [arXiv:2601.19921, 2026-01-30]。<strong>独立确认</strong>鞅定理在同构智能体下成立,识别出 vanilla MAD 缺失的两个机制:</p>
+<ul>
+<li>初始视点多样性 (diversity-aware initialization)</li>
+<li>校准化置信度通信 (confidence-modulated protocol)</li>
+</ul>
+<p>提出 diversity-aware initialization + confidence-modulated 协议作为缓解,但具体提升幅度需谨慎对待。</p>
+
+<h4>3.2.3 AceMAD (2026-03,绕过而非破坏)</h4>
+
+<p>Liu et al. [arXiv:2603.06801, 2026-03-09]。标题号称 "Breaking the Martingale Curse",但<strong>严格地说未"打破"鞅定理</strong>——鞅定理假设是对称性,论文通过严格正常评分规则 (strictly proper scoring rules) 量化辩手间"认知势能"差,将过程转换为<strong>正漂移子鞅</strong>:</p>
+
+<div class="formula-box">
+$$\mathbb{E}[B_{t+1} \mid \mathcal{F}_t] \;\geq\; B_t + \mu, \qquad \mu > 0$$
+</div>
+
+<p>$\mu$ 来源于异构性的信息论上界——<em>"突破"实为绕过,通过破坏对称性假设</em>。AceMAD 测试三种多样性源:</p>
+<ul>
+<li><strong>跨模型混合</strong> (cross-model mixing) —— 知识任务上最优</li>
+<li><strong>Persona 角色</strong> —— 逻辑任务上更优</li>
+<li><strong>System-1 / System-2 认知模式混合</strong></li>
+</ul>
+
+<div class="good">
+<strong>对用户假设的直接含义</strong>:AceMAD 的核心发现 ("跨模型异构在知识任务上最优") 是用户 refined idea 在 2026 年的最强直接支持。$\mu$ 这个正漂移本身就是<strong>异构性</strong>转化为信息增益的形式化。
+</div>
+
+<p>同方向工程跟进:</p>
+<ul>
+<li><strong>DynaDebate</strong> [Li et al. arXiv:2601.05746, 2026-01]:Path Generation Agent + Process-Centric Debate</li>
+<li><strong>Hear Both Sides (DAR)</strong> [Nguyen et al. arXiv:2603.20640, 2026-03]:Diversity-Aware Retention,每轮只广播与多数投票最不一致的回应</li>
+</ul>
+
+<h3>3.3 对 MAD 的批判性评估</h3>
+
+<table>
+<thead><tr><th>论文</th><th>设置</th><th>核心发现</th></tr></thead>
+<tbody>
+<tr><td>Smit et al. [arXiv:2311.17371, ICML 2024]</td><td>MAD vs Self-Consistency 公平超参</td><td>等价 token 预算下,MAD 不优于 SC</td></tr>
+<tr><td>Wang et al. [arXiv:2402.18272, ACL 2024]</td><td>强单 agent vs 多 agent 讨论</td><td>"Rethinking the Bounds":强 single-agent ≈ 最佳 multi-agent;零示例下 MAD 略胜</td></tr>
+<tr><td>Stop Overvaluing MAD [arXiv:2502.08788, v2]<sup class="muted">[v1 题为 "If Multi-Agent Debate is the Answer, What is the Question?"]</sup></td><td>5 MAD × 9 基准 × 4 基础模型</td><td>MAD 常败于 CoT/SC;唯一稳健改进来自<strong>模型异构性</strong></td></tr>
+<tr><td>X-MAS [Ye et al. arXiv:2505.16997, 2025-05]</td><td>27 LLMs × 5 域 × 5 功能,&gt;1.7M 评估</td><td>Chatbot-only 异构 +8.4% MATH;chatbot-reasoner 混合 +47% AIME</td></tr>
+<tr><td>Diversity of Thought [Hegazy arXiv:2410.12853, 2024-10]</td><td>diverse 中等模型 vs 单 GPT-4</td><td>中等模型组合 (Gemini-Pro + Mixtral + PaLM 2-M) 4 轮辩论后在 GSM-8K 上达 91%,<strong>超过 GPT-4 单 agent</strong></td></tr>
+</tbody>
+</table>
+
+<p><strong>关键批评</strong>:MAD 文献长期未对照 Self-Consistency 这一计算等价基线;当对照时,绝大部分增益消失。这是 §3.2 鞅定理在经验层面的影子。</p>
+
+<h3>3.4 自我批评的局限</h3>
+
+<h4>3.4.1 早期乐观主张</h4>
+<ul>
+<li>Self-Refine [Madaan et al. arXiv:2303.17651, NeurIPS 2023]:7 任务平均 +20% 偏好率</li>
+<li>Reflexion [Shinn et al. arXiv:2303.11366, NeurIPS 2023]:HumanEval pass@1 GPT-4 baseline 80.1% → 91%</li>
+</ul>
+
+<h4>3.4.2 反向证据</h4>
+
+<p><strong>Huang et al.</strong> <em>Large Language Models Cannot Self-Correct Reasoning Yet</em> [arXiv:2310.01798, ICLR 2024]。核心实验剥离 Reflexion/Self-Refine 中使用 ground-truth label 决定"何时停止"的隐式 oracle。<strong>移除 oracle 后</strong>:GPT-3.5 在 GSM8K 上模型保持初答的比例为 74.7%,且 self-correction 后整体性能略下降而非提升;CommonSenseQA、HotpotQA 上观察到类似下降趋势。<strong>结论</strong>:所谓"自纠正"的提升来自停止规则中泄漏的 oracle 信号。</p>
+
+<p><strong>Stechly et al.</strong> [arXiv:2310.12397, 2023-10;arXiv:2402.08115, 2024-02]:Graph Coloring、24 Game、STRIPS 规划上发现:<strong>让外部错误验证器替代自我验证产生相同的"改进"</strong>——"批评的正确性与最终性能无关"。证伪了自我批评的认识论基础:迭代不是因为找到了错误才有用,而是 noisy resampling。</p>
+
+<p><strong>MAR (Multi-Agent Reflexion)</strong> [Ozer et al. arXiv:2512.20845, 2025-12-23]:HotpotQA EM 44 → 47, HumanEval <strong>76.4 → 82.6</strong> (+6.2 pts)。强调单模型反思呈 DoT,需要<strong>异构 persona 辩手</strong>生成反思——再次印证:自我批评的修复在于<em>注入异构性</em>,而非循环本身。</p>
+
+<h3>3.5 谄媚 (Sycophancy) 与论辩回音</h3>
+
+<h4>3.5.1 操作化定义</h4>
+
+<p>Sharma et al. [arXiv:2310.13548, ICLR 2024] 测试 5 个 SOTA 模型 × 4 项自由文本任务:</p>
+<div class="formula-box">
+$$\mathrm{Syc}(M) = \Pr\bigl(M(\text{flip} \mid \text{user push back}) \mid M_0 = \text{correct}\bigr)$$
+</div>
+<p>即用户施压下放弃<strong>原本正确</strong>答案的概率。Wei et al. [arXiv:2308.03958, 2023-08]:<strong>模型规模 + instruction tuning 均加剧谄媚</strong>——与"对齐缓解偏差"的直觉相反。</p>
+
+<h4>3.5.2 会话框架效应 (对 pingpong 最直接相关)</h4>
+
+<p><strong>Kim &amp; Khashabi</strong> <em>Challenging the Evaluator: LLM Sycophancy Under User Rebuttal</em> [arXiv:2509.16533, EMNLP 2025 Findings]。三大发现:</p>
+
+<ol>
+<li><strong>同一反方论点</strong>:作为"用户后续反驳"提交时,模型采纳率显著高于"同时呈现两份候选"评判模式</li>
+<li><strong>详尽推理的反驳</strong> (即便结论错误) 比简短反驳更易使模型让步——<strong>最坏情形</strong></li>
+<li><strong>口语化反馈</strong>比正式批评更易动摇模型</li>
+</ol>
+
+<div class="bad">
+<strong>对 pingpong 提示直接相关</strong>:同一会话内的反方论点恰好命中 Kim &amp; Khashabi 的三个最坏情形。<strong>多轮交互的会话结构本身——而非内容——足以诱发偏差。</strong>
+</div>
+
+<p><strong>Ben Natan &amp; Tsur</strong> <em>Not Your Typical Sycophant</em> [arXiv:2601.15436, 2026-01-26]:在四个前沿模型 (Gemini 2.5 Pro / ChatGpt 4o / Mistral-Large-2411 / Claude Sonnet 3.7) 上用零和博弈框架检测,发现<strong>所有模型偏向"最后呈现的答案"</strong>;谄媚 × 近因偏差呈"建设性干涉",当用户立场最后呈现时偏差最大——人类 recency effect 在 LLM 上的同构。</p>
+
+<h4>3.5.3 Stanford AI Index 2026 总体数字</h4>
+
+<div class="warn">
+<strong>修正</strong>:此前流传的 per-model 百分比 (Claude Sonnet 4 36%、GPT-5.1 41%、Gemini 2.5 Pro 30%) 在 Stanford HAI 公开材料中<strong>无法独立核实</strong>。Stanford 2026 AI Index 实际报告的核心数字是 <em>"AI 模型比人类多确认约 49% 的虚假陈述"</em>,且明确说明谄媚普遍存在于所有测试模型——但<strong>未发布逐模型排名</strong>。原始 PDF 表格 (hai.stanford.edu/assets/files/ai_index_report_2026.pdf) 应在引用前核对。
+</div>
+
+<h3>3.6 锚定效应</h3>
+
+<ul>
+<li>Anchoring Bias in LLMs [Lou &amp; Sun, arXiv:2412.06593, 2024-12]:经典 Tversky-Kahneman 锚定范式可复制于 LLM;CoT、忽略提示等简单缓解<strong>无效</strong></li>
+<li>Understanding the Anchoring Effect [arXiv:2505.15392, 2025-05-21, v2 2026-03]:基于 SynAnchors 数据集,LLM 对 <strong>22–61%</strong> 的问题表现出锚定效应(<em>注:该数字属于锚定问题率,非 sycophancy</em>);仅推理 (reasoning) 部分缓解</li>
+</ul>
+
+<h3>3.7 认知科学背景:迁移须谨慎</h3>
+
+<table>
+<thead><tr><th>研究</th><th>发现</th><th>对 LLM 的预测</th></tr></thead>
+<tbody>
+<tr><td>Lord, Lepper, Preston [JPSP 47:1231-1243, 1984, DOI:10.1037/0022-3514.47.6.1231]</td><td>Consider-the-Opposite 减少有偏假设检验,但仅当指令明确要求设想替代结果时</td><td>简单"考虑相反"prompt 可能无效,需明确替代生成</td></tr>
+<tr><td>Hirt &amp; Markman [JPSP 69:1069-1086, 1995, DOI:10.1037/0022-3514.69.6.1069]</td><td>有效成分是<strong>"可信替代",不是"相反"</strong>——多样性 ≠ 对称对立</td><td>同模型 pingpong 提供对称对立,可能不是真正的多样性</td></tr>
+<tr><td>Sanna et al. [JPSP 2002] + Retraction Watch</td><td>ease-of-retrieval 反向效应。⚠️ Sanna 多篇 (≥8) 后被撤,基础范式 (Schwarz 1991) 仍有效</td><td>LLM 流畅生成反论可能强化而非打破原立场</td></tr>
+<tr><td><strong>Nemeth, Brown, Rogers</strong> [EJSP 31:707-720, 2001, DOI:10.1002/ejsp.58]</td><td>"真实少数派"vs 三种"魔鬼代言人":<strong>真实少数派全胜</strong>;指派的 devil's advocate <em>反而强化</em>多数派立场</td><td><strong>同模型 pingpong = 结构模拟异议 ≈ devil's advocate</strong>——可能强化用户原判断</td></tr>
+<tr><td>Schulz-Hardt et al. [OBHDP 88:563-586, 2002, DOI:10.1016/S0749-5978(02)00001-8]</td><td>群体决策:<strong>异质性 &gt; devil's advocacy</strong></td><td>真实持不同先验的成员不可被人为对立辩论替代</td></tr>
+</tbody>
+</table>
+
+<div class="warn">
+<strong>关键含义</strong>:LLM 的"对立提示"是<strong>结构性模拟分歧</strong>——同权重、同 token 分布、外加风格扰动。Nemeth-Schulz-Hardt 预测:<em>同模型 pingpong 在认知机制上更接近 devil's advocate 而非真实少数派</em>,可预期效用低于异构源采样。需注意:人类研究的"信念"概念与 LLM 的"采样分布"概念非同一本体;类比推论须以经验验证补充。
+</div>
+
+<h3>3.8 跨会话 vs 同会话直接证据</h3>
+
+<p><strong>"Pingpong" 不是 NLP 技术术语</strong>,是用户隐喻。最接近的形式对应是:</p>
+<ol>
+<li>Tit-for-tat MAD [Liang 2023]</li>
+<li>Devil's advocate prompting (社区实践,无规范文献)</li>
+<li>Critique-and-refine (Self-Refine 谱系)</li>
+</ol>
+
+<p>直接比较"同会话对抗多轮"与"跨会话独立采样"的研究稀缺。最相关:</p>
+
+<p><strong>Wisdom and Delusion of LLM Ensembles</strong> [Vallecillos-Ruiz, Hort, Moonen, arXiv:2510.21513, 2025-10-30]:10 单模型 × 3 集成 × 3 软件工程基准:</p>
+<ul>
+<li><strong>理论上界</strong>:集成可比最佳单模型高 <strong>83%</strong></li>
+<li><strong>Popularity Trap</strong>:共识策略放大常见但错误的输出 (与鞅定理同构)</li>
+<li><strong>多样性策略</strong>捕获 <strong>95%</strong> 的理论上界,即便 2 模型小集成也有效</li>
+</ul>
+
+<div class="good">
+<strong>跨会话/跨模型采样的强证据</strong>,且暗示<em>选择机制</em>(diversity-based)与<em>采样多样性</em>同等重要。这是用户 refined idea 在 2025 末–2026 最强的经验侧翼支持。
+</div>
+
+<p>另:Can LLM Agents Really Debate? [arXiv:2511.07784, 2025-11]——在逻辑推理上做受控实验,辩论的提升大部分可归因于消息中的<strong>外部信息注入</strong>而非辩手互动本身。</p>
+
+<hr>
+
+<h2 id="lineC">4. Line C:自主 AI 研究代理</h2>
+
+<h3>4.1 系统时间线 (2024 → 2026)</h3>
+
+<table>
+<thead><tr><th>日期</th><th>系统</th><th>关键定位</th></tr></thead>
+<tbody>
+<tr><td>2024-04-12</td><td>ResearchAgent [Baek et al. arXiv:2404.07738]</td><td>实体中心知识库 + 多评审 agent 迭代精化</td></tr>
+<tr><td>2024-08-12</td><td>Sakana AI Scientist v1 [arXiv:2408.06292]</td><td>端到端线性 pipeline,模板依赖</td></tr>
+<tr><td>2024-09-06</td><td>Si, Yang, Hashimoto [arXiv:2409.04109]</td><td>100+ NLP 评审者盲评:AI novelty 5.64 &gt; 人类 4.84, p&lt;0.05</td></tr>
+<tr><td>2024-11-11</td><td>Virtual Lab (Swanson, Zou) [bioRxiv:2024.11.11.623004]</td><td>LLM PI + LLM specialist;后期 Nature 646:716-723 (2025)</td></tr>
+<tr><td>2025-01-08</td><td>Agent Laboratory [Schmidgall et al. arXiv:2501.04227, AMD+JHU+ETH]</td><td>o1-preview 主控;比 v1 成本 -84%</td></tr>
+<tr><td>2025-03</td><td>Intology Zochi (ACL 2025 "Tempest" 论文)</td><td>顶会接受但作者含 Intology 员工 + AI agent</td></tr>
+<tr><td>2025-03</td><td>Autoscience Carl</td><td>ICLR 2025 Tiny Papers 接受后<strong>主动撤稿</strong></td></tr>
+<tr><td>2025-04-10</td><td>Sakana AI Scientist v2 [arXiv:2504.08066]</td><td>BFTS 树搜索 + VLM 反馈;ICLR 2025 workshop 接受 1 篇</td></tr>
+<tr><td>2025-06-25</td><td><strong>Si Ideation-Execution Gap [arXiv:2506.20803]</strong></td><td>43 专家执行 ~100h/idea;ICLR 2026 投稿<sup class="muted">[接收状态待核]</sup></td></tr>
+<tr><td>2025-07-29</td><td>Virtual Lab 正式版 [Nature 646:716-723, DOI:10.1038/s41586-025-09442-9]</td><td>92 个 SARS-CoV-2 nanobody 候选 + 实验验证</td></tr>
+<tr><td>2025-08</td><td>AI2 Asta 平台 (allenai.org/asta)</td><td>开源科学 AI agent 框架</td></tr>
+<tr><td>2025-11-04</td><td>Kosmos [arXiv:2511.02824]</td><td>结构化世界模型;200 agent rollouts;12h 连续运行</td></tr>
+<tr><td>2025-11-06</td><td>Jr. AI Scientist [arXiv:2511.04583, UTokyo, TMLR 2026]</td><td>基于 Claude Code,低预算</td></tr>
+<tr><td>2025-11-17</td><td>Kosmos 独立评估 [arXiv:2511.13825]</td><td>3 发现 → 1 立 / 1 模糊 / 1 错</td></tr>
+<tr><td>2026-02-12</td><td>AI2 AutoDiscovery (AstaLabs)</td><td>Bayesian surprise 驱动;500 实验/session 上限</td></tr>
+<tr><td><strong>2026-02-12 → 03-03</strong></td><td><strong>FARS (Analemma)</strong></td><td>228h28m33s 直播;100 → 166 篇;11.4B tokens;<strong>$104K</strong></td></tr>
+<tr><td>2026-03-19</td><td>Autoscience $14M seed (General Catalyst)</td><td>商业资本 ≠ 学界批判</td></tr>
+<tr><td>2026-03-26</td><td>Sakana AI Scientist [Nature s41586-026-10265-5]</td><td>v1+v2 合并发表;含<strong>"AI 科学 scaling law"</strong>:基础模型越强,AI Scientist 输出越好</td></tr>
+<tr><td>2026-05</td><td>Sakana TreeQuest (库) + RL Conductor / Fugu (路由系统)</td><td>Fugu 训 7B router 编排 GPT-5/Claude Sonnet 4/Gemini 2.5 Pro 等 7 模型</td></tr>
+</tbody>
+</table>
+
+<h3>4.2 架构深度比较——模型异构性</h3>
+
+<table>
+<thead><tr><th>系统</th><th>流水线</th><th>各角色模型</th><th>并行模式</th><th>总成本</th></tr></thead>
+<tbody>
+<tr><td><strong>Sakana v2</strong></td><td>BFTS 树搜索 + experiment-manager</td><td>experiment=Claude 3.5 Sonnet;writeup=o1-preview;cite/format=GPT-4o;figure=o3-mini;VLM=GPT-4o (推断)</td><td>树并行</td><td>未公开总额</td></tr>
+<tr><td><strong>RL Conductor / Fugu</strong> (2026-05)</td><td>7B router + 多 LLM worker</td><td>router=Sakana 内部 7B;worker= GPT-5, Claude Sonnet 4, Gemini 2.5 Pro + 4 开源</td><td>动态分支</td><td>无完整运行成本</td></tr>
+<tr><td><strong>Kosmos</strong></td><td>shared structured world model</td><td>orchestrator=Claude 3.7 Sonnet (推断);LiteLLM 路由 Anthropic + OpenAI</td><td>166 数据 agent + 36 文献 agent 并行</td><td>12h run;美元未公开</td></tr>
+<tr><td><strong>FARS</strong></td><td>4-agent 顺序: Ideation → Planning → Experiment → Writing</td><td>"任何开源/闭源模型可插拔";具体分配<strong>未公开</strong></td><td>单论文顺序 + 多论文并行</td><td><strong>$104K/100 篇 = ~$1,040/篇</strong>(注:媒体广泛误报为 $1,100 总价,系与 Sakana v1 早期数据混淆)</td></tr>
+<tr><td><strong>Virtual Lab</strong></td><td>LLM PI + 多 LLM 专家</td><td>主要 GPT-4 / GPT-4o</td><td>角色并行</td><td>未单独披露</td></tr>
+<tr><td>Zochi</td><td>单 pipeline + reviewer chain</td><td>主要 Claude 家族</td><td>顺序</td><td>未公开</td></tr>
+<tr><td>Carl</td><td>多 agent 研究室 + 评审</td><td>未公开</td><td>未公开</td><td>未公开</td></tr>
+<tr><td>Jr. AI Scientist</td><td>baseline → 限定改进循环</td><td>Claude Code</td><td>顺序</td><td>显式低预算</td></tr>
+<tr><td>Agent Laboratory</td><td>lit-review → experiment → report</td><td>o1-preview 最佳;支持多模型替换</td><td>顺序为主</td><td>较 v1 -84%</td></tr>
+</tbody>
+</table>
+
+<div class="good">
+<strong>关键架构观察</strong>:2024 → 2026 范式迁移:"单模型贯穿" (ResearchAgent, Sakana v1) → "角色异构 + 工具异构" (Sakana v2, FARS) → "中央编排器 + 异构 worker" (Kosmos, Fugu)。<strong>用户 refined idea 的两个核心元素(异质模型 + 跨会话/并行采样)已经是 2026 SOTA 的事实标准。</strong>
+</div>
+
+<h3>4.3 新颖性度量方法</h3>
+
+<h4>4.3.1 人工盲评 (Si 2024)</h4>
+<p>[arXiv:2409.04109]:LLM ideas novelty 均值 <strong>5.64</strong>,人类 4.84, p&lt;0.05;LLM + human rerank = 5.81。但 AI agent 用 <strong>inference-time scaling</strong>:生成 ~4000 seed ideas → dedupe → rerank → top。这导致单 idea 评分<em>不可直接对比人类的"一次性产出"</em>。</p>
+
+<h4>4.3.2 Originality–Quality 调和均值</h4>
+<p>Padmakumar 等 [arXiv:2504.09389, 2025-04]:</p>
+<div class="formula-box">
+$$\mathrm{Novelty} \;=\; H\!\left(\frac{|U|}{|N|},\; Q\right) \;=\; \frac{2 \cdot (|U|/|N|) \cdot Q}{(|U|/|N|) + Q}$$
+</div>
+<p>$|U|$ = 训练集未见 n-gram, $|N|$ = 总 n-gram, $Q$ = 任务质量。<strong>核心结论</strong>:基模强度推动"新颖性前沿";inference-time 技巧 (rerank/temperature) 对前沿位置影响有限——与 Si 2024 用 rerank 取 5.81 形成张力。</p>
+
+<h4>4.3.3 Relative Neighbor Density (RND)</h4>
+<p>Wang, Cui, Jiang, Yan [arXiv:2503.01508, 2025-03]<sup class="muted">[审计修正:首作非 Padmakumar]</sup>:</p>
+<div class="formula-box">
+$$\mathrm{RND}(x) \;=\; \log\!\left(\frac{\rho_{\text{local}}(x)}{\frac{1}{k}\sum_{i=1}^{k}\rho(x_i)}\right)$$
+</div>
+<p>验证:<strong>CS AUROC = 0.820;生物医学 AUROC = 0.765</strong>。RND 对域具备不变性,比绝对密度指标稳健。</p>
+
+<h4>4.3.4 CreativityPrism &amp; Stanford Agentic Reviewer</h4>
+<ul>
+<li><strong>CreativityPrism</strong> [arXiv:2510.20091]:quality / novelty / diversity 三维解构,八任务跨三域。<em>quality 与 diversity 强相关; novelty 与两者弱相关甚至负相关</em>——解释 Si 2024 中"AI 新颖性高但其他维度未对应抬升"的悖论。</li>
+<li><strong>Stanford Agentic Reviewer</strong> (paperreview.ai):AI-human Spearman <strong>0.42</strong>, human-human <strong>0.41</strong>——AI 评审仅略高于人-人间的低一致性而非"匹配人类水平"。被 FARS 用于自评。</li>
+<li><strong>DeepReviewer</strong> [arXiv:2503.08569, 2025-03, Westlake NLP]:DeepReviewer-14B 三档 (Fast/Standard/Best);对 GPT-o1 胜率 88.21%;Rating MSE +44.80%。被独立研究用于评估 Zochi、Sakana 等。</li>
+</ul>
+
+<h3>4.4 Si 2026 Ideation-Execution Gap (本报告核心)</h3>
+
+<p>[Si, Hashimoto, Yang, arXiv:2506.20803, 2025-06-25, submitted to ICLR 2026]</p>
+
+<h4>4.4.1 实验设计</h4>
+<ul>
+<li><strong>被试</strong>:43 位专家 (NLP/ML PhD 或同等)。每人随机分到一条 idea(来源人类专家或 LLM,执行阶段<strong>完全致盲</strong>)</li>
+<li><strong>执行预算</strong>:三个月窗口,每条 idea 平均 <strong>&gt;100 小时</strong>实施 (运行实验 + 写 4 页短论文)</li>
+<li><strong>评审</strong>:完成后由独立专家在双盲条件下评分;维度与 Si 2024 一致 (novelty/excitement/effectiveness/overall,1-10)</li>
+<li><strong>idea 配对</strong>:来自 Si 2024 同一批次,主题约束一致</li>
+</ul>
+
+<h4>4.4.2 关键数值结果</h4>
+
+<table>
+<thead><tr><th>维度</th><th>LLM idea 执行后变化</th><th>人类 idea 执行后变化</th></tr></thead>
+<tbody>
+<tr><td>Novelty</td><td><strong>−1.049</strong></td><td>−0.010</td></tr>
+<tr><td>Excitement</td><td><strong>−1.760</strong></td><td>+0.078</td></tr>
+<tr><td>Effectiveness</td><td><strong>−1.879</strong></td><td>−0.052</td></tr>
+<tr><td>Overall</td><td>显著下降 (p &lt; 0.05)</td><td>几乎不变</td></tr>
+</tbody>
+</table>
+
+<h4>4.4.3 排名反转 (Rank Inversion)</h4>
+<ul>
+<li><strong>执行前</strong> (Si 2024):LLM ideas 全部四维显著高于人类</li>
+<li><strong>执行后</strong>:在 overall quality 上,<strong>人类 idea 反超 LLM idea</strong></li>
+<li>同一研究团队、同样 rubric、同一类评审者下的<strong>完全反转</strong></li>
+</ul>
+
+<div class="bad">
+<strong>对一切"仅 ideation 评估"系统的杀手锏</strong>:Si 2026 直接推翻以下"宣传成绩"基础假设:FARS Agentic Reviewer <strong>5.05</strong>、Si 2024 评审 <strong>5.64</strong>、Zochi DeepReviewer 4.63、Sakana v2 workshop 通过——凡是"撰写阶段评分"皆 <strong>upward-biased 1–2 分</strong>。这是迄今对自主 AI 研究最严格的负面证据,且来自原 Si 2024 同一通讯作者。
+</div>
+
+<h3>4.5 独立批判评估</h3>
+
+<table>
+<thead><tr><th>研究</th><th>系统</th><th>核心发现</th></tr></thead>
+<tbody>
+<tr><td>Beel, Kan, Baumgart [arXiv:2502.14297]</td><td>Sakana v1</td><td><strong>42%</strong> 实验因代码错误失败;文献检索靠关键词;数值 interestingness 不参与决策</td></tr>
+<tr><td>Kosmos 独立评估 [arXiv:2511.13825]</td><td>Kosmos 放射生物学发现</td><td>CDO1 站住;12-基因 signature 模糊 (c-index 高于多数随机集但效应量未显著);<strong>DDR→p53 错误</strong> (Spearman ρ = −0.40, p = 0.756) — 6 个月 PhD 等价物宣传在严格基线下命中率 ~1/3</td></tr>
+<tr><td>AI Scientists Fail [Zhu et al. arXiv:2506.01372]</td><td>Zochi ACL 论文</td><td>DeepReviewer 重评:<strong>Soundness 2.38 / Presentation 2.38 / Contribution 2.25</strong> (中位数水平,远低于宣传的"top 8.2%")</td></tr>
+<tr><td>Autoscience Carl</td><td>ICLR 2025 Tiny Papers</td><td>接受后 <strong>主动撤稿</strong>,理由"frameworks are being devised"</td></tr>
+<tr><td>TechCrunch 2025-03-19 + Nature 2026 d41586-026-00899-w</td><td>所有 AI startup</td><td>"co-opting peer review for publicity";期刊正式回应跟进</td></tr>
+</tbody>
+</table>
+
+<div class="warn">
+<strong>ICLR 2025 workshop 三家差异化</strong>:Sakana 事前征得 ICLR 同意;Intology 与 Autoscience 未征得 → 学界批评升级 → Autoscience 撤稿。这是当前学术伦理框架的真实压力测试。
+</div>
+
+<h3>4.6 FARS 取证</h3>
+
+<table>
+<thead><tr><th>项</th><th>核实值</th><th>来源</th></tr></thead>
+<tbody>
+<tr><td>直播开始</td><td>2026-02-12 22:00 EST</td><td>@AnalemmaAI status 2021772394558632322</td></tr>
+<tr><td>100 篇里程碑</td><td>T + 228h28m33s</td><td>@AnalemmaAI status 2025605516232417378</td></tr>
+<tr><td>扩展运行结束</td><td>2026-03-03 (累计 <strong>166 篇</strong>)</td><td>@AnalemmaAI status 2029517097467068771</td></tr>
+<tr><td>假设池</td><td>244 → 100 论文 (~59% 淘汰率)</td><td>@AnalemmaAI status 2025822814633423189</td></tr>
+<tr><td>Token 消耗</td><td><strong>11.4 B tokens</strong></td><td>同上</td></tr>
+<tr><td>总成本</td><td><strong>$104,000 USD</strong> (≈ $1,040 / 论文)</td><td>同上</td></tr>
+<tr><td><span class="bad" style="display:inline; padding:0.1em 0.4em;">常见误报</span></td><td>"$1,100" — 实为 Sakana v1 早期成本数,媒体混淆</td><td>The Conversation 2026-05;Stuff SA 2026-05</td></tr>
+<tr><td>Agentic Reviewer 平均分</td><td><strong>5.05</strong> (区间 3.0–6.3)</td><td>36kr 英文报道</td></tr>
+<tr><td>ICLR 2026 人类投稿均值</td><td>4.21</td><td>36kr</td></tr>
+<tr><td>ICLR 2026 接受均值</td><td>5.39</td><td>同上</td></tr>
+<tr><td>真实双盲同行评审接收</td><td><strong>0 (截至 2026-05-15)</strong></td><td>公开记录搜索</td></tr>
+</tbody>
+</table>
+
+<div class="bad">
+<strong>关键警告</strong>:Agentic Reviewer 与人类评审仅 Spearman 0.42 相关;5.05 不应推断为"真实 5.05 分"。结合 Si 2026 的 ideation-execution gap (1–2 分扣减),FARS 论文的<strong>真实 overall 评分预计跌至 3.2–4.0</strong>——远低于 ICLR 接受线 5.39。
+</div>
+
+<h3>4.7 诚实判决</h3>
+
+<p>截至 2026-05-15,是否有自主系统通过 A*/A 级双盲审稿、<strong>无人类合作、无撤稿</strong>?</p>
+
+<p><strong>简短回答:否。</strong></p>
+
+<ul>
+<li><strong>Sakana v2 ICLR 2025 workshop</strong>:1/3 接受;workshop 级别低于 A*/A;Sakana 团队<em>主动声明并撤稿</em>以避免引发争议</li>
+<li><strong>Zochi ACL 2025 主会</strong>:Intology 声明接受但作者署名含 Intology 员工 + 工程师介入显著,不属"无人协作";DeepReviewer 复评仅 4.63/10</li>
+<li><strong>Autoscience Carl ICLR 2025 Tiny Papers</strong>:接受后<strong>主动撤回</strong></li>
+<li><strong>Sakana Nature 2026</strong> (s41586-026-10265-5):关于 AI 科学家系统的<em>人类作者</em>论文,而非 AI 自动生成论文</li>
+<li><strong>FARS</strong>:0 篇真实接收;均为内部 Agentic Reviewer 自评</li>
+<li><strong>Jr. AI Scientist TMLR 2026</strong>:关于该系统的人类署名论文,非该系统产出物</li>
+<li><strong>Virtual Lab Nature 2025</strong>:人类专家深度协作;Swanson, Wu, Bulaong 等署名</li>
+</ul>
+
+<hr>
+
+<h2 id="synth">5. 综合:对用户 pingpong 假设的最终评估</h2>
+
+<h3>5.1 用户原始假设 vs Refined 假设</h3>
+
+<table>
+<thead><tr><th></th><th>原始 pingpong</th><th>Refined 异质 + 跨会话</th></tr></thead>
+<tbody>
+<tr><td>架构</td><td>单模型同会话反复对抗</td><td>多模型独立 session 采样</td></tr>
+<tr><td>对应文献最弱形式</td><td>tit-for-tat MAD / Self-Refine 单模型循环</td><td>X-MAS / AceMAD 异构 + cross-session ensemble</td></tr>
+<tr><td>Martingale 定理预测</td><td>$\mathbb{E}[B_{t+1}|\mathcal{F}_t] = B_t$ (期望不增益)</td><td>$\mathbb{E}[B_{t+1}|\mathcal{F}_t] \geq B_t + \mu$, $\mu &gt; 0$ (正漂移)</td></tr>
+<tr><td>Sycophancy 风险</td><td>高 (Kim &amp; Khashabi: 反驳框架直接命中最坏情形)</td><td>低 (独立 session 无锚定)</td></tr>
+<tr><td>Nemeth 模拟异议风险</td><td>高 (devil's advocate 同构)</td><td>低 (异质源 ≈ 真实少数派)</td></tr>
+</tbody>
+</table>
+
+<h3>5.2 用户 Refined 假设在 2026 文献中的支持/反对</h3>
+
+<table>
+<thead><tr><th>维度</th><th>证据</th></tr></thead>
+<tbody>
+<tr><td>架构层 SOTA</td><td><span class="tag tag-strong">支持</span> 已是事实标准:Sakana v2 / Kosmos / FARS / Fugu 都按角色路由异质模型</td></tr>
+<tr><td>理论层</td><td><span class="tag tag-strong">支持</span> AceMAD 的 $\mu &gt; 0$ 子鞅、Demystifying MAD 的两机制论 (diversity + confidence)</td></tr>
+<tr><td>实证 (diversity)</td><td><span class="tag tag-mid">支持</span> Wisdom and Delusion: 跨会话集成达理论上界 95%;R-Diverse 警告同会话 Local/Surface 幻觉</td></tr>
+<tr><td>实证 (anti-sycophancy)</td><td><span class="tag tag-strong">支持</span> Ben Natan: 所有前沿模型偏向最后立场,跨会话本质规避</td></tr>
+<tr><td>实证 (直接对照)</td><td><span class="tag tag-weak">空白</span> 2026 无任何论文做"异质跨会话 vs 同质同会话"的严格对照,且控制 token 预算</td></tr>
+<tr><td>评估层</td><td><span class="tag tag-weak">警告</span> Si 2026: 只用 ideation 评分会高估 1-2 分,必须做执行端评估</td></tr>
+</tbody>
+</table>
+
+<h3>5.3 头条结论</h3>
+
+<div class="good">
+<strong>用户 refined 方向正确,且在 2026 年获得了比 2025 末更强的理论与经验支持</strong>:
+<ol>
+<li>AceMAD 给出了 $\mu &gt; 0$ 这个形式化的"异构带来信息增益"陈述</li>
+<li>Wisdom and Delusion 给出了"跨会话集成 ≈ 理论上界 95%"这个最干净的经验数字</li>
+<li>三大 SOTA autoresearch 系统 (Sakana v2 / Kosmos / FARS) 都已采用异构架构</li>
+</ol>
+但是:
+<ol>
+<li>没有任何已发表研究做了控制变量消融,把"异构性"与"采样多样性"二者解耦——<strong>这是用户的真正学术空白</strong></li>
+<li>Si 2026 警告:所有 ideation-only 评估高估 1-2 分;真正的 contribution 必须包含执行端验证</li>
+</ol>
+</div>
+
+<hr>
+
+<h2 id="experiment">6. 实验设计建议</h2>
+
+<h3>6.1 最小可发表 ablation</h3>
+
+<p>受 Si 2026 启示,设计 <strong>2 × 2 × 3 因子</strong>(条件 × 多样性源 × 评估层),固定总 token 预算 $B$:</p>
+
+<table>
+<thead><tr><th>Cell</th><th>采样模式</th><th>多样性源</th></tr></thead>
+<tbody>
+<tr><td>C0 (baseline)</td><td>单模型单 session 单次</td><td>无</td></tr>
+<tr><td>C1 (Pingpong)</td><td>单模型同 session $k$ 轮对抗</td><td>会话内 persona</td></tr>
+<tr><td>C2 (Cross-session same)</td><td>同模型 $k$ 个独立 session</td><td>仅采样噪声</td></tr>
+<tr><td>C3 (Cross-session cross-model)</td><td>$\{M_1, \dots, M_k\}$ 跨家族</td><td>异构 + 采样</td></tr>
+<tr><td>C4 (Same-session cross-model)</td><td>同 session 多模型辩论</td><td>异构但同上下文</td></tr>
+</tbody>
+</table>
+
+<p><strong>三层评估</strong>(必须全部报告):</p>
+<ol>
+<li><strong>L1 ideation-only</strong>:LLM-judge + RND + Originality-Quality 调和均值</li>
+<li><strong>L2 human ideation</strong>:盲评 idea 文本 (≥30 idea/cell,Si 2024 协议)</li>
+<li><strong>L3 execution</strong>:抽样 ≥10 idea/cell 进入完整执行 (Si 2026 协议,≥100h/idea)</li>
+</ol>
+
+<p><strong>关键次要指标</strong>(Si 2026 之后必报):<em>L1 → L3 的回归斜率</em>。如果该斜率显著 &lt; 1,说明 ideation 评分 upward-biased,与 Si 2026 一致。</p>
+
+<h3>6.2 预算估算</h3>
+
+<table>
+<thead><tr><th>方案</th><th>规模</th><th>估算成本</th></tr></thead>
+<tbody>
+<tr><td>完整 5-cell × L1+L2+L3</td><td>5 cell × 30 idea/cell × 100h = 15,000 工时</td><td>~$200K–$400K (含人力)</td></tr>
+<tr><td>缩减版 L1+L2,L3 仅最优最差 cell × 5 idea</td><td>5 cell × 30 idea L1+L2,2 cell × 5 idea L3 = ~1,000 工时</td><td>~$40K</td></tr>
+<tr><td>最小可信版 (5-cell × L1 + 高低差 cell × L2)</td><td>主要 LLM API + 少量人评</td><td>~$10K–$15K</td></tr>
+</tbody>
+</table>
+
+<h3>6.3 预测</h3>
+
+<p>基于本报告综合,我对实验结果的<strong>先验预测</strong>:</p>
+
+<ul>
+<li><strong>L1 (ideation-only) 上</strong>:C3 ≈ C4 &gt; C2 &gt; C0 &gt; C1
+  <ul>
+    <li>C1 (pingpong) 在 L1 上可能因 Si 2024 同样的 inference-time scaling 看上去不错,但 sycophancy 信号 (Kim &amp; Khashabi 末位偏向) 应该在末轮答案被检测到</li>
+  </ul>
+</li>
+<li><strong>L3 (execution) 上</strong>:Si 2026 effect 普遍下降;<strong>cell 间排名可能保持但 gap 缩小</strong>
+  <ul>
+    <li>关键预测:C3 vs C2 的 gap 在 L3 上仍存在但缩小——这是用户 idea 的真正价值锚</li>
+  </ul>
+</li>
+<li><strong>L1 → L3 回归斜率</strong>:在 0.4–0.6 之间 (Si 2026 暗示 ~0.5)</li>
+</ul>
+
+<h3>6.4 publishable angle</h3>
+
+<p>如果实验结果与上述预测一致,论文标题应类似:</p>
+
+<blockquote style="font-style:italic;">
+"Decoupling Heterogeneity from Sampling: A Controlled Ablation of Diversity Sources in Multi-LLM Idea Generation, with Post-Execution Validation"
+</blockquote>
+
+<p>核心贡献:</p>
+<ol>
+<li><strong>首次</strong>将"异构性"与"采样多样性"在 token 预算控制下解耦</li>
+<li><strong>首次</strong>系统验证 Si 2026 ideation-execution gap 在多 LLM 设置下的存在性</li>
+<li>给出 $\mu(\text{异构})$ 在不同任务类型下的经验估计</li>
+</ol>
+
+<hr>
+
+<h2 id="sources">7. 来源列表 (按出现次序)</h2>
+
+<h4>Line A — LLM 多样性与坍缩</h4>
+<ol>
+<li>Kirk R., Mediratta I., Nalmpantis C., Luketina J., Hambro E., Grefenstette E., Raileanu R. <em>Understanding the Effects of RLHF on LLM Generalisation and Diversity</em>. <a href="https://arxiv.org/abs/2310.06452">arXiv:2310.06452</a>, 2023-10-10. ICLR 2024.</li>
+<li>Padmakumar V., He H. <em>Does Writing with Language Models Reduce Content Diversity?</em> <a href="https://arxiv.org/abs/2309.05196">arXiv:2309.05196</a>, 2023-09-11. <strong>ICLR 2024</strong>.</li>
+<li>Doshi A. R., Hauser O. P. <em>Generative AI enhances individual creativity but reduces the collective diversity of novel content</em>. Sci Adv 10:eadn5290, <a href="https://www.science.org/doi/10.1126/sciadv.adn5290">DOI:10.1126/sciadv.adn5290</a>, 2024-07-12.</li>
+<li>Anderson B. R., Shah J. H., Kreminski M. <em>Homogenization Effects of Large Language Models on Human Creative Ideation</em>. <a href="https://arxiv.org/abs/2402.01536">arXiv:2402.01536</a>, 2024-02-02. C&amp;C 2024.</li>
+<li>Holtzman A., Buys J., Du L., Forbes M., Choi Y. <em>The Curious Case of Neural Text Degeneration</em>. <a href="https://arxiv.org/abs/1904.09751">arXiv:1904.09751</a>. ICLR 2020.</li>
+<li>Wang Z., Li Y., Yan J., Cheng Y., Zhang Y. <em>Unveiling Attractor Cycles in LLMs: A Dynamical Systems View of Successive Paraphrasing</em>. <a href="https://arxiv.org/abs/2502.15208">arXiv:2502.15208</a>, 2025-02. ACL 2025 Long.</li>
+<li><em>Dynamics of Agentic Loops in LLMs: A Geometric Theory of Trajectories</em>. <a href="https://arxiv.org/abs/2512.10350">arXiv:2512.10350</a>, 2025-12.</li>
+<li>Shumailov I. et al. <em>AI models collapse when trained on recursively generated data</em>. Nature 631:755-759, <a href="https://www.nature.com/articles/s41586-024-07566-y">DOI:10.1038/s41586-024-07566-y</a>, 2024-07-24.</li>
+<li>Gerstgrasser M. et al. <em>Is Model Collapse Inevitable?</em> <a href="https://arxiv.org/abs/2404.01413">arXiv:2404.01413</a>, 2024.</li>
+<li>Schaeffer R., Kazdan J. et al. <em>Position: Model Collapse Does Not Mean What You Think</em>. <a href="https://arxiv.org/abs/2503.03150">arXiv:2503.03150</a>, 2025-03.</li>
+<li>Raheja T. et al. <em>From RLHF to Direct Alignment</em>. <a href="https://arxiv.org/abs/2601.06108">arXiv:2601.06108</a>, 2026-01.</li>
+<li>Xiao et al. <em>On the Algorithmic Bias of Aligning LLMs with RLHF</em>. <a href="https://arxiv.org/abs/2405.16455">arXiv:2405.16455</a>, 2024-05.</li>
+<li><em>Diverse Preference Learning for Capabilities and Alignment</em>. <a href="https://arxiv.org/abs/2511.08594">arXiv:2511.08594</a>, 2025-11.</li>
+<li>Go D., Korbak T. et al. <em>Aligning Language Models with Preferences through f-divergence Minimization</em>. <a href="https://proceedings.mlr.press/v202/go23a.html">PMLR v202/go23a</a>, ICML 2023.</li>
+<li>Zhang J., Yu S., Chong D. et al. <em>Verbalized Sampling</em>. <a href="https://arxiv.org/abs/2510.01171">arXiv:2510.01171</a>, 2025-10.</li>
+<li><em>R-Diverse: Mitigating Diversity Illusion in Self-Play LLM Training</em>. <a href="https://arxiv.org/abs/2602.13103">arXiv:2602.13103</a>, 2026-02.</li>
+<li><em>DiverseGRPO</em>. <a href="https://arxiv.org/abs/2512.21514">arXiv:2512.21514</a>, 2025-12.</li>
+<li><em>H-DPO / Entropy Controllable DPO</em>. <a href="https://arxiv.org/abs/2411.07595">arXiv:2411.07595</a>, 2024-11.</li>
+</ol>
+
+<h4>Line B — MAD / Sycophancy / 认知科学</h4>
+<ol start="19">
+<li>Du Y., Li S., Torralba A., Tenenbaum J. B., Mordatch I. <em>Improving Factuality and Reasoning through Multiagent Debate</em>. <a href="https://arxiv.org/abs/2305.14325">arXiv:2305.14325</a>, ICML 2024.</li>
+<li>Liang T. et al. <em>Encouraging Divergent Thinking in LLMs through Multi-Agent Debate</em>. <a href="https://arxiv.org/abs/2305.19118">arXiv:2305.19118</a>, EMNLP 2024.</li>
+<li>Chan C.-M. et al. <em>ChatEval</em>. <a href="https://arxiv.org/abs/2308.07201">arXiv:2308.07201</a>, ICLR 2024.</li>
+<li>Choi H. K., Zhu X., Li Y. <em>Debate or Vote</em>. <a href="https://arxiv.org/abs/2508.17536">arXiv:2508.17536</a>, 2025-08.</li>
+<li>Zhu X. et al. <em>Demystifying Multi-Agent Debate</em>. <a href="https://arxiv.org/abs/2601.19921">arXiv:2601.19921</a>, 2026-01.</li>
+<li>Liu et al. <em>Breaking the Martingale Curse / AceMAD</em>. <a href="https://arxiv.org/abs/2603.06801">arXiv:2603.06801</a>, 2026-03.</li>
+<li>Li et al. <em>DynaDebate</em>. <a href="https://arxiv.org/abs/2601.05746">arXiv:2601.05746</a>, 2026-01.</li>
+<li>Nguyen et al. <em>Hear Both Sides (DAR)</em>. <a href="https://arxiv.org/abs/2603.20640">arXiv:2603.20640</a>, 2026-03.</li>
+<li>Smit A. et al. <em>Should we be going MAD?</em> <a href="https://arxiv.org/abs/2311.17371">arXiv:2311.17371</a>, ICML 2024.</li>
+<li>Wang Q. et al. <em>Rethinking the Bounds of LLM Reasoning</em>. <a href="https://arxiv.org/abs/2402.18272">arXiv:2402.18272</a>, ACL 2024.</li>
+<li>Zhang et al. <em>Stop Overvaluing MAD</em>. <a href="https://arxiv.org/abs/2502.08788">arXiv:2502.08788</a>, 2025-02.</li>
+<li>Ye et al. <em>X-MAS</em>. <a href="https://arxiv.org/abs/2505.16997">arXiv:2505.16997</a>, 2025-05.</li>
+<li>Hegazy M. <em>Diversity of Thought Elicits Stronger Reasoning</em>. <a href="https://arxiv.org/abs/2410.12853">arXiv:2410.12853</a>, 2024-10.</li>
+<li>Madaan A. et al. <em>Self-Refine</em>. <a href="https://arxiv.org/abs/2303.17651">arXiv:2303.17651</a>, NeurIPS 2023.</li>
+<li>Shinn N. et al. <em>Reflexion</em>. <a href="https://arxiv.org/abs/2303.11366">arXiv:2303.11366</a>, NeurIPS 2023.</li>
+<li>Huang J. et al. <em>LLMs Cannot Self-Correct Reasoning Yet</em>. <a href="https://arxiv.org/abs/2310.01798">arXiv:2310.01798</a>, ICLR 2024.</li>
+<li>Stechly K. et al. <em>GPT-4 Doesn't Know It's Wrong</em>. <a href="https://arxiv.org/abs/2310.12397">arXiv:2310.12397</a>, 2023-10.</li>
+<li>Stechly K. et al. <em>On the Self-Verification Limitations</em>. <a href="https://arxiv.org/abs/2402.08115">arXiv:2402.08115</a>, 2024-02.</li>
+<li>Ozer et al. <em>MAR: Multi-Agent Reflexion</em>. <a href="https://arxiv.org/abs/2512.20845">arXiv:2512.20845</a>, 2025-12.</li>
+<li>Sharma M. et al. <em>Towards Understanding Sycophancy</em>. <a href="https://arxiv.org/abs/2310.13548">arXiv:2310.13548</a>, ICLR 2024.</li>
+<li>Wei J. et al. <em>Simple Synthetic Data Reduces Sycophancy</em>. <a href="https://arxiv.org/abs/2308.03958">arXiv:2308.03958</a>, 2023-08.</li>
+<li>Kim S., Khashabi D. <em>Challenging the Evaluator: LLM Sycophancy Under User Rebuttal</em>. <a href="https://arxiv.org/abs/2509.16533">arXiv:2509.16533</a>, EMNLP 2025 Findings.</li>
+<li>Ben Natan, Tsur. <em>Not Your Typical Sycophant</em>. <a href="https://arxiv.org/abs/2601.15436">arXiv:2601.15436</a>, 2026-01.</li>
+<li>Lou J., Sun Y. <em>Anchoring Bias in LLMs</em>. <a href="https://arxiv.org/abs/2412.06593">arXiv:2412.06593</a>, 2024-12.</li>
+<li><em>Understanding the Anchoring Effect</em>. <a href="https://arxiv.org/abs/2505.15392">arXiv:2505.15392</a>, 2025-05.</li>
+<li>Vallecillos-Ruiz, Hort, Moonen. <em>Wisdom and Delusion of LLM Ensembles</em>. <a href="https://arxiv.org/abs/2510.21513">arXiv:2510.21513</a>, 2025-10.</li>
+<li><em>Can LLM Agents Really Debate?</em> <a href="https://arxiv.org/abs/2511.07784">arXiv:2511.07784</a>, 2025-11.</li>
+<li>Lord C. G., Lepper M. R., Preston E. <em>Considering the Opposite</em>. JPSP 47(6):1231-1243, 1984. <a href="https://doi.org/10.1037/0022-3514.47.6.1231">DOI:10.1037/0022-3514.47.6.1231</a>.</li>
+<li>Hirt E. R., Markman K. D. <em>Multiple Explanation</em>. JPSP 69(6):1069-1086, 1995. <a href="https://doi.org/10.1037/0022-3514.69.6.1069">DOI:10.1037/0022-3514.69.6.1069</a>.</li>
+<li>Nemeth C., Brown K., Rogers J. <em>Devil's advocate versus authentic dissent</em>. EJSP 31(6):707-720, 2001. <a href="https://doi.org/10.1002/ejsp.58">DOI:10.1002/ejsp.58</a>.</li>
+<li>Schulz-Hardt S., Jochims M., Frey D. <em>Productive Conflict in Group Decision Making</em>. OBHDP 88(2):563-586, 2002. <a href="https://doi.org/10.1016/S0749-5978(02)00001-8">DOI:10.1016/S0749-5978(02)00001-8</a>.</li>
+<li>Retraction Watch — Sanna 撤稿记录. <a href="https://retractionwatch.com/category/lawrence-sanna/">retractionwatch.com</a>.</li>
+</ol>
+
+<h4>Line C — 自主研究代理</h4>
+<ol start="51">
+<li>Lu C. et al. <em>The AI Scientist v1</em>. <a href="https://arxiv.org/abs/2408.06292">arXiv:2408.06292</a>, 2024-08.</li>
+<li>Yamada Y. et al. <em>The AI Scientist v2</em>. <a href="https://arxiv.org/abs/2504.08066">arXiv:2504.08066</a>, 2025-04.</li>
+<li>Sakana AI Labs. <em>Towards end-to-end automation of AI research</em>. <a href="https://www.nature.com/articles/s41586-026-10265-5">Nature s41586-026-10265-5</a>, 2026-03.</li>
+<li>Si C., Hashimoto T., Yang D. <em>The Ideation-Execution Gap</em>. <a href="https://arxiv.org/abs/2506.20803">arXiv:2506.20803</a>, 2025-06.</li>
+<li>Si C., Yang D., Hashimoto T. <em>Can LLMs Generate Novel Research Ideas?</em> <a href="https://arxiv.org/abs/2409.04109">arXiv:2409.04109</a>, 2024-09.</li>
+<li>Baek J. et al. <em>ResearchAgent</em>. <a href="https://arxiv.org/abs/2404.07738">arXiv:2404.07738</a>, 2024-04.</li>
+<li>Schmidgall S. et al. <em>Agent Laboratory</em>. <a href="https://arxiv.org/abs/2501.04227">arXiv:2501.04227</a>, 2025-01.</li>
+<li>Swanson K., Wu W., Bulaong N. L. et al. <em>The Virtual Lab</em>. Nature 646:716-723 (2025). <a href="https://www.nature.com/articles/s41586-025-09442-9">DOI:10.1038/s41586-025-09442-9</a>.</li>
+<li>Mitchener et al. <em>Kosmos: An AI Scientist for Autonomous Discovery</em>. <a href="https://arxiv.org/abs/2511.02824">arXiv:2511.02824</a>, 2025-11.</li>
+<li><em>When AI Does Science: Evaluating Kosmos in Radiation Biology</em>. <a href="https://arxiv.org/abs/2511.13825">arXiv:2511.13825</a>, 2025-11.</li>
+<li>Beel J., Kan M.-Y., Baumgart M. <em>Evaluating Sakana's AI Scientist</em>. <a href="https://arxiv.org/abs/2502.14297">arXiv:2502.14297</a>, 2025-02.</li>
+<li>Zhu M. et al. <em>DeepReview</em>. <a href="https://arxiv.org/abs/2503.08569">arXiv:2503.08569</a>, 2025-03.</li>
+<li>Zhu M. et al. <em>AI Scientists Fail Without Strong Implementation Capability</em>. <a href="https://arxiv.org/abs/2506.01372">arXiv:2506.01372</a>, 2025-06.</li>
+<li>Wang Y., Cui M., Jiang A., Yan J. <em>Enabling AI Scientists to Recognize Innovation</em> (RND). <a href="https://arxiv.org/abs/2503.01508">arXiv:2503.01508</a>, 2025-03.</li>
+<li>Padmakumar V. et al. <em>Measuring LLM Novelty as the Frontier of Original and High-Quality Output</em>. <a href="https://arxiv.org/abs/2504.09389">arXiv:2504.09389</a>, 2025-04.</li>
+<li><em>CreativityPrism</em>. <a href="https://arxiv.org/abs/2510.20091">arXiv:2510.20091</a>, 2025-10.</li>
+<li>Guo S. et al. <em>IdeaBench</em>. <a href="https://arxiv.org/abs/2411.02429">arXiv:2411.02429</a>, 2024-10.</li>
+<li>Miyai A. et al. <em>Jr. AI Scientist</em>. <a href="https://arxiv.org/abs/2511.04583">arXiv:2511.04583</a>, 2025-11. TMLR 2026.</li>
+<li>Analemma. <em>Introducing FARS</em>. <a href="https://analemma.ai/blog/introducing-fars/">analemma.ai/blog/introducing-fars</a> (备份:<a href="https://eu.36kr.com/en/p/3696795271966336">36kr</a>). 2026-02 至 03.</li>
+<li>Sakana AI. <em>TreeQuest</em>. <a href="https://github.com/SakanaAI/treequest">github.com/SakanaAI/treequest</a>. RL Conductor / Fugu 见 <a href="https://venturebeat.com/orchestration/how-sakana-trained-a-7b-model-to-orchestrate-gpt-5-claude-sonnet-4-and-gemini-2-5-pro">VentureBeat 2026-05</a>.</li>
+<li>AI2. <em>Asta + AutoDiscovery</em>. <a href="https://allenai.org/blog/autodiscovery">allenai.org/blog/autodiscovery</a>, 2026-02-12.</li>
+<li>Intology AI. <em>Zochi ACL paper "Tempest"</em>. <a href="https://www.intology.ai/blog/zochi-acl">intology.ai/blog/zochi-acl</a>.</li>
+<li>Autoscience Institute. <em>Carl announcement + withdrawal</em>. <a href="https://www.autoscience.ai/blog/carl-full-paper">autoscience.ai/blog/carl-full-paper</a>;融资 <a href="https://siliconangle.com/2026/03/19/autoscience-builds-automated-research-lab-machine-learning-models-14m/">siliconangle 2026-03-19</a>.</li>
+<li>Stanford Agentic Reviewer. <a href="https://paperreview.ai/tech-overview">paperreview.ai/tech-overview</a>.</li>
+<li>Stanford HAI. <em>AI Index 2026</em>. <a href="https://hai.stanford.edu/ai-index/2026-ai-index-report">hai.stanford.edu/ai-index/2026</a> — sycophancy 总体数字 ~49%;<strong>per-model 排名未公开发布</strong>。</li>
+<li>TechCrunch. <em>Academics accuse AI startups of co-opting peer review for publicity</em>. <a href="https://techcrunch.com/2025/03/19/academics-accuse-ai-startups-of-co-opting-peer-review-for-publicity/">2025-03-19</a>.</li>
+<li>Nature editorial. <em>AI scientists are changing research</em>. <a href="https://www.nature.com/articles/d41586-026-00899-w">d41586-026-00899-w</a>, 2026.</li>
+</ol>
+
+<hr>
+
+<p class="meta" style="text-align: right;">
+报告完成日期:2026-05-15 · 总字数:约 12,500 中文字符 + 公式 + 引用 ·
+方法:3 条线并行撰写 + 1 条独立审计 + 主合并应用所有 reviewer 修正 ·
+未核实项已显式标注 · 所有可核 arXiv ID / DOI 已超链
+</p>
+
+</body>
+</html>
