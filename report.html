@@ -5,7 +5,7 @@
 <title>Pingpong / Novelty Collapse 综合技术报告 (2026-05-15)</title>
 <script>
 window.MathJax = {
-  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
   svg: { fontCache: 'global' }
 };
 </script>
@@ -120,7 +120,7 @@ hr { border: 0; border-top: 2px dashed #ccc; margin: 2.5em 0; }
 <ol>
 <li><strong>"Novelty collapse" 不是一个现象,而是至少四个</strong>:(a) 单输入跨样本多样性下降 (RLHF 后);(b) 跨用户社会层面同质化;(c) 解码层面 in-context 吸引子;(d) 世代递归模型坍缩。混用导致大量伪争论 [Schaeffer/Kapoor arXiv:2503.03150]。</li>
 
-<li><strong>(a) 在理论上已经被 2026 年的 Preference Collapse Theorem 形式化</strong> [Raheja arXiv:2601.06108,基于 Xiao arXiv:2405.16455]:在 Bradley–Terry 偏好模型 + 无正则化下,多数偏好以概率 1 抹除少数偏好。<strong>KL 项本身被诊断为根源</strong> [arXiv:2511.08594]:$D_\text{KL}(\pi \| \pi_0)$ 把熵和交叉熵用同一系数耦合,迫使多样性损失。</li>
+<li><strong>(a) 在理论上已经被 2026 年的 Preference Collapse Theorem 形式化</strong> [Raheja arXiv:2601.06108,基于 Xiao arXiv:2405.16455]:在 Bradley–Terry 偏好模型 + 无正则化下,多数偏好以概率 1 抹除少数偏好。<strong>KL 项本身被诊断为根源</strong> [arXiv:2511.08594]:\(D_\text{KL}(\pi \| \pi_0)\) 把熵和交叉熵用同一系数耦合,迫使多样性损失。</li>
 
 <li><strong>单会话同质 pingpong 在理论上有严格上界</strong>:Debate-or-Vote 鞅定理 [arXiv:2508.17536] 证明同构智能体辩论的期望正确率不增益,2026 年 Demystifying MAD [arXiv:2601.19921] 与 AceMAD [arXiv:2603.06801] 共同确认该定理的"突破"都必须经过<strong>引入异质性</strong>这条路径。</li>
 
@@ -157,7 +157,7 @@ hr { border: 0; border-top: 2px dashed #ccc; margin: 2.5em 0; }
 
 <h4>2.2.1 KL 正则化 RLHF 目标的隐式尾部压缩</h4>
 
-<p>标准 RLHF 目标在策略 $\pi$ 上对参考策略 $\pi_0$ 施加 KL 约束:</p>
+<p>标准 RLHF 目标在策略 \(\pi\) 上对参考策略 \(\pi_0\) 施加 KL 约束:</p>
 
 <div class="formula-box">
 $$\max_{\pi} \; \mathbb{E}_{x \sim \mathcal{D},\, y \sim \pi(\cdot|x)} [r(x, y)] - \beta \, D_{\mathrm{KL}}\!\big(\pi(\cdot|x) \,\big\|\, \pi_0(\cdot|x)\big)$$
@@ -169,17 +169,17 @@ $$\max_{\pi} \; \mathbb{E}_{x \sim \mathcal{D},\, y \sim \pi(\cdot|x)} [r(x, y)]
 $$\pi^*(y \mid x) \;=\; \frac{1}{Z(x)} \, \pi_0(y \mid x) \, \exp\!\Big(\frac{r(x, y)}{\beta}\Big)$$
 </div>
 
-<p>将 reward 通过 <em>exponential tilting</em> 注入参考分布。当 $r$ 在某 mode 上明显占优时,$\exp(r/\beta)$ 以指数速率压扁所有其他 mode,即便其参考概率非零。这是 (a) 类坍缩的最干净理论根源。<span class="tag tag-strong">证据强 (闭式推导)</span></p>
+<p>将 reward 通过 <em>exponential tilting</em> 注入参考分布。当 \(r\) 在某 mode 上明显占优时,\(\exp(r/\beta)\) 以指数速率压扁所有其他 mode,即便其参考概率非零。这是 (a) 类坍缩的最干净理论根源。<span class="tag tag-strong">证据强 (闭式推导)</span></p>
 
 <h4>2.2.2 Preference Collapse Theorem</h4>
 
 <p>Xiao et al. [arXiv:2405.16455, 2024-05-26] 首次提出 "preference collapse" 概念;Raheja et al. [arXiv:2601.06108, 2026-01-03] 在 "From RLHF to Direct Alignment" 中给出统一三轴框架 (preference model × regularizer × data distribution)。关键陈述 (释义):</p>
 
 <blockquote>
-设偏好数据由真实偏好分布 $P^*$ 生成,包含主导偏好 $y_\text{maj}$ (频率 $p$) 与少数偏好 $y_\text{min}$ (频率 $1-p$,$p > 1/2$)。在无正则化的 reward 最大化下,对足够大样本量与足够灵活策略类,最优策略 $\hat\pi$ 满足 $\hat\pi(y_\text{maj} \mid x) \to 1$——多数偏好对其余的相对质量被不成比例放大,最优策略以概率 1 输出 $y_\text{maj}$ 而完全抹除 $y_\text{min}$。
+设偏好数据由真实偏好分布 \(P^*\) 生成,包含主导偏好 \(y_\text{maj}\) (频率 \(p\)) 与少数偏好 \(y_\text{min}\) (频率 \(1-p\),\(p > 1/2\))。在无正则化的 reward 最大化下,对足够大样本量与足够灵活策略类,最优策略 \(\hat\pi\) 满足 \(\hat\pi(y_\text{maj} \mid x) \to 1\)——多数偏好对其余的相对质量被不成比例放大,最优策略以概率 1 输出 \(y_\text{maj}\) 而完全抹除 \(y_\text{min}\)。
 </blockquote>
 
-<p><strong>直觉</strong>:BT 模型下 reward 差异 $\Delta r$ 是 logit;策略以 softmax/argmax 映射回行为;任何正向 $\Delta r$ 在无温度/正则化时被放大为 0/1 输出。<span class="tag tag-mid">证据中-强 (数学清晰;实证仅小规模 alignment 基准,未在前沿模型验证)</span></p>
+<p><strong>直觉</strong>:BT 模型下 reward 差异 \(\Delta r\) 是 logit;策略以 softmax/argmax 映射回行为;任何正向 \(\Delta r\) 在无温度/正则化时被放大为 0/1 输出。<span class="tag tag-mid">证据中-强 (数学清晰;实证仅小规模 alignment 基准,未在前沿模型验证)</span></p>
 
 <div class="warn">
 <strong>归属注</strong>:Preference Collapse 概念由 Xiao 等 2024 提出;Raheja 等 2026 是综合 unification 框架,其 Theorem 5.2 是否独立证明或综述 Xiao 工作,需查原文。本报告引用时应同列两篇。
@@ -187,13 +187,13 @@ $$\pi^*(y \mid x) \;=\; \frac{1}{Z(x)} \, \pi_0(y \mid x) \, \exp\!\Big(\frac{r(
 
 <h4>2.2.3 KL 项本身的病理 (Soft Preference Learning)</h4>
 
-<p>Soft Preference Learning [arXiv:2511.08594, 2025-11-13]<sup class="muted">[首作姓氏待核对]</sup> 的核心论点:$D_{\mathrm{KL}}(\pi \| \pi_0)$ 可分解为</p>
+<p>Soft Preference Learning [arXiv:2511.08594, 2025-11-13]<sup class="muted">[首作姓氏待核对]</sup> 的核心论点:\(D_{\mathrm{KL}}(\pi \| \pi_0)\) 可分解为</p>
 
 <div class="formula-box">
 $$D_{\mathrm{KL}}(\pi \,\|\, \pi_0) \;=\; \underbrace{\mathbb{E}_{\pi}[-\log \pi_0]}_{\text{交叉熵 CE — 把 } \pi \text{ 拉向 } \pi_0 \text{ 的众数}} \;-\; \underbrace{H(\pi)}_{\text{策略熵 — 鼓励多样性}}$$
 </div>
 
-<p>两项方向相反但<strong>强度被同一系数 $\beta$ 耦合</strong>。reward 信号驱动 $\pi$ 偏离 $\pi_0$ 时,CE 增大主导 $H(\pi)$ 收缩,系统性高估多数意见。SPL 解耦为独立系数 $\beta_{\text{CE}}, \beta_H$:</p>
+<p>两项方向相反但<strong>强度被同一系数 \(\beta\) 耦合</strong>。reward 信号驱动 \(\pi\) 偏离 \(\pi_0\) 时,CE 增大主导 \(H(\pi)\) 收缩,系统性高估多数意见。SPL 解耦为独立系数 \(\beta_{\text{CE}}, \beta_H\):</p>
 
 <div class="formula-box">
 $$\mathcal{L}_{\text{SPL}} = -\mathbb{E}_\pi[r] + \beta_{\text{CE}} \, \mathbb{E}_\pi[-\log \pi_0] - \beta_H \, H(\pi)$$
@@ -219,7 +219,7 @@ $$\mathcal{L}_{\text{SPL}} = -\mathbb{E}_\pi[r] + \beta_{\text{CE}} \, \mathbb{E
 
 <ul>
 <li><strong>Holtzman et al.</strong> [arXiv:1904.09751, ICLR 2020]:奠基论文,likelihood-as-decoding 导致重复、平淡。<span class="tag tag-strong">证据强 (反复复现)</span></li>
-<li><strong>Wang/Li/Yan/Cheng/Zhang</strong> [arXiv:2502.15208, ACL 2025 Long]:<em>"Unveiling Attractor Cycles in Large Language Models"</em>。设定:$y_{t+1} = \text{LLM}(\text{paraphrase}(y_t))$。多个开源模型上观察到<strong>2-周期吸引子</strong>,2-periodicity 度量经常 &gt; 0.80;即便升温、交替使用不同 prompt/LLM 仍然存在。<span class="tag tag-mid">证据中 (多模型复现,缺前沿闭源验证)</span></li>
+<li><strong>Wang/Li/Yan/Cheng/Zhang</strong> [arXiv:2502.15208, ACL 2025 Long]:<em>"Unveiling Attractor Cycles in Large Language Models"</em>。设定:\(y_{t+1} = \text{LLM}(\text{paraphrase}(y_t))\)。多个开源模型上观察到<strong>2-周期吸引子</strong>,2-periodicity 度量经常 &gt; 0.80;即便升温、交替使用不同 prompt/LLM 仍然存在。<span class="tag tag-mid">证据中 (多模型复现,缺前沿闭源验证)</span></li>
 <li><strong>"Dynamics of Agentic Loops"</strong> [arXiv:2512.10350, 2025-12, v5 修订到 2026]:把 §c 的 paraphrase 吸引子推广为通用 agentic loops,刻画三种动力学制度:<strong>contractive</strong> (收敛至稳定吸引子)、<strong>oscillatory</strong> (吸引子间环游)、<strong>exploratory</strong> (无界发散)。<em>prompt 设计直接决定 regime</em>。<span class="tag tag-weak">证据弱-中 (框架新,实证案例数有限)</span></li>
 </ul>
 
@@ -262,7 +262,7 @@ $$\mathcal{L}_{\text{SPL}} = -\mathbb{E}_\pi[r] + \beta_{\text{CE}} \, \mathbb{E
 <table>
 <thead><tr><th>现象</th><th>已确立程度</th><th>用户方案能缓解吗?</th></tr></thead>
 <tbody>
-<tr><td>(a) 单输入坍缩</td><td>基本确立 (开源 ≤13B)</td><td><strong>能</strong>——Preference Collapse Theorem 是<em>单策略</em>陈述;混合 $\pi_1, \dots, \pi_K$ 可恢复尾部支持</td></tr>
+<tr><td>(a) 单输入坍缩</td><td>基本确立 (开源 ≤13B)</td><td><strong>能</strong>——Preference Collapse Theorem 是<em>单策略</em>陈述;混合 \(\pi_1, \dots, \pi_K\) 可恢复尾部支持</td></tr>
 <tr><td>(b) 跨用户同质化</td><td>已确立 (写作/构思任务)</td><td><strong>能</strong>——若每用户调用不同模型,群体协方差应下降</td></tr>
 <tr><td>(c) In-context 吸引子</td><td>部分确立 (paraphrasing 稳健)</td><td><strong>部分</strong>——跨会话打断状态延续,但需刻意 prompt 异质化避免局部 contractive regime</td></tr>
 <tr><td>(d) 世代递归坍缩</td><td>条件性确立 (纯替换下成立)</td><td><strong>基本不能</strong>——这是训练时现象,与采样时混合正交</td></tr>
@@ -275,7 +275,7 @@ $$\mathcal{L}_{\text{SPL}} = -\mathbb{E}_\pi[r] + \beta_{\text{CE}} \, \mathbb{E
 
 <h3>3.1 MAD 与 Degeneration-of-Thought</h3>
 
-<p>多智能体辩论 (MAD) 由 Du et al. [arXiv:2305.14325, 2023-05-23, ICML 2024] 首次系统化:$N$ 个同构 LLM 实例对同一问题独立给答,在 $T$ 轮中交换中间响应并迭代修订。论文报告 GSM8K、MMLU 数学子集、Chess Move Validity 等任务上的显著提升<sup class="muted">[具体数字 +10.8 pts 来源待核对]</sup>。</p>
+<p>多智能体辩论 (MAD) 由 Du et al. [arXiv:2305.14325, 2023-05-23, ICML 2024] 首次系统化:\(N\) 个同构 LLM 实例对同一问题独立给答,在 \(T\) 轮中交换中间响应并迭代修订。论文报告 GSM8K、MMLU 数学子集、Chess Move Validity 等任务上的显著提升<sup class="muted">[具体数字 +10.8 pts 来源待核对]</sup>。</p>
 
 <p>Liang et al. [arXiv:2305.19118, 2023-05-30, EMNLP 2024] 形式化了 <em>Degeneration-of-Thought (DoT)</em>:同一 LLM 迭代反思自身输出时陷入"自我一致性陷阱"。可操作化为:</p>
 
@@ -283,7 +283,7 @@ $$\mathcal{L}_{\text{SPL}} = -\mathbb{E}_\pi[r] + \beta_{\text{CE}} \, \mathbb{E
 $$\mathrm{DoT}(r_{1:T}) \;=\; \frac{1}{T-1}\sum_{t=2}^{T} \mathrm{sim}(r_t, r_{t-1}) - \mathrm{sim}(r_t, r^*)$$
 </div>
 
-<p>其中 $r^*$ 是参考答案。当此值 → 1 时,模型仅在复述自身。Liang 引入 <em>tit-for-tat</em> 机制强制施加显式分歧。</p>
+<p>其中 \(r^*\) 是参考答案。当此值 → 1 时,模型仅在复述自身。Liang 引入 <em>tit-for-tat</em> 机制强制施加显式分歧。</p>
 
 <p>ChatEval [Chan et al., arXiv:2308.07201, ICLR 2024] 为辩手分配异质 <em>persona</em> 来模拟多样性,但<strong>同一模型权重下 persona 仅修改解码分布的偏置项,未改变先验信念分布的支撑集</strong>——这是 persona 多样性的根本局限。</p>
 
@@ -296,16 +296,16 @@ $$\mathrm{DoT}(r_{1:T}) \;=\; \frac{1}{T-1}\sum_{t=2}^{T} \mathrm{sim}(r_t, r_{t
 <p>[arXiv:2508.17536, 2025-08-24]。将 MAD 解构为 "多数投票" + "辩手交互" 两层,在 Dirichlet-Compound-Multinomial (DCM) 先验下证明:</p>
 
 <div class="formula-box">
-设 $B_t = \Pr(\text{correct} \mid \mathcal{F}_t)$ 为智能体在第 $t$ 轮、给定历史 $\sigma$-代数 $\mathcal{F}_t$ 时对正确答案的后验信念。在对称同构智能体与无偏更新假设下:
+设 \(B_t = \Pr(\text{correct} \mid \mathcal{F}_t)\) 为智能体在第 \(t\) 轮、给定历史 \(\sigma\)-代数 \(\mathcal{F}_t\) 时对正确答案的后验信念。在对称同构智能体与无偏更新假设下:
 $$\boxed{\;\mathbb{E}[B_{t+1} \mid \mathcal{F}_t] \;=\; B_t\;}$$
-即 $\{B_t\}$ 是关于 $\{\mathcal{F}_t\}$ 的鞅。
+即 \(\{B_t\}\) 是关于 \(\{\mathcal{F}_t\}\) 的鞅。
 </div>
 
-<p><strong>直接推论</strong>:$\mathbb{E}[B_T] = \mathbb{E}[B_0]$,无论辩论多少轮,期望正确率不会随轮数提高。MAD 在期望意义上退化为对 $t=0$ 时刻多数投票的随机重采样。</p>
+<p><strong>直接推论</strong>:\(\mathbb{E}[B_T] = \mathbb{E}[B_0]\),无论辩论多少轮,期望正确率不会随轮数提高。MAD 在期望意义上退化为对 \(t=0\) 时刻多数投票的随机重采样。</p>
 
-<p><strong>简要推导</strong>:Bayes 视角下,辩手 $i$ 的更新为</p>
+<p><strong>简要推导</strong>:Bayes 视角下,辩手 \(i\) 的更新为</p>
 $$B^{(i)}_{t+1} \;\propto\; B^{(i)}_t \cdot L(m_t \mid \text{correct})$$
-<p>若所有辩手共享同一似然 $L$ 且消息分布对称,$\mathbb{E}_{m_t}[L(m_t \mid \text{correct})] = L(m_t \mid \text{incorrect})$ 在边际化下退化,更新无信息增益,鞅性成立。</p>
+<p>若所有辩手共享同一似然 \(L\) 且消息分布对称,$\mathbb{E}_{m_t}[L(m_t \mid \text{correct})] = L(m_t \mid \text{incorrect})$ 在边际化下退化,更新无信息增益,鞅性成立。</p>
 
 <p><strong>实证</strong>:论文在 7 个 NLP 基准上验证,多数投票单独解释 MAD 的绝大部分增益。</p>
 
@@ -326,7 +326,7 @@ $$B^{(i)}_{t+1} \;\propto\; B^{(i)}_t \cdot L(m_t \mid \text{correct})$$
 $$\mathbb{E}[B_{t+1} \mid \mathcal{F}_t] \;\geq\; B_t + \mu, \qquad \mu > 0$$
 </div>
 
-<p>$\mu$ 来源于异构性的信息论上界——<em>"突破"实为绕过,通过破坏对称性假设</em>。AceMAD 测试三种多样性源:</p>
+<p>\(\mu\) 来源于异构性的信息论上界——<em>"突破"实为绕过,通过破坏对称性假设</em>。AceMAD 测试三种多样性源:</p>
 <ul>
 <li><strong>跨模型混合</strong> (cross-model mixing) —— 知识任务上最优</li>
 <li><strong>Persona 角色</strong> —— 逻辑任务上更优</li>
@@ -334,7 +334,7 @@ $$\mathbb{E}[B_{t+1} \mid \mathcal{F}_t] \;\geq\; B_t + \mu, \qquad \mu > 0$$
 </ul>
 
 <div class="good">
-<strong>对用户假设的直接含义</strong>:AceMAD 的核心发现 ("跨模型异构在知识任务上最优") 是用户 refined idea 在 2026 年的最强直接支持。$\mu$ 这个正漂移本身就是<strong>异构性</strong>转化为信息增益的形式化。
+<strong>对用户假设的直接含义</strong>:AceMAD 的核心发现 ("跨模型异构在知识任务上最优") 是用户 refined idea 在 2026 年的最强直接支持。\(\mu\) 这个正漂移本身就是<strong>异构性</strong>转化为信息增益的形式化。
 </div>
 
 <p>同方向工程跟进:</p>
@@ -516,7 +516,7 @@ $$\mathrm{Syc}(M) = \Pr\bigl(M(\text{flip} \mid \text{user push back}) \mid M_0 
 <div class="formula-box">
 $$\mathrm{Novelty} \;=\; H\!\left(\frac{|U|}{|N|},\; Q\right) \;=\; \frac{2 \cdot (|U|/|N|) \cdot Q}{(|U|/|N|) + Q}$$
 </div>
-<p>$|U|$ = 训练集未见 n-gram, $|N|$ = 总 n-gram, $Q$ = 任务质量。<strong>核心结论</strong>:基模强度推动"新颖性前沿";inference-time 技巧 (rerank/temperature) 对前沿位置影响有限——与 Si 2024 用 rerank 取 5.81 形成张力。</p>
+<p>\(|U|\) = 训练集未见 n-gram, \(|N|\) = 总 n-gram, \(Q\) = 任务质量。<strong>核心结论</strong>:基模强度推动"新颖性前沿";inference-time 技巧 (rerank/temperature) 对前沿位置影响有限——与 Si 2024 用 rerank 取 5.81 形成张力。</p>
 
 <h4>4.3.3 Relative Neighbor Density (RND)</h4>
 <p>Wang, Cui, Jiang, Yan [arXiv:2503.01508, 2025-03]<sup class="muted">[审计修正:首作非 Padmakumar]</sup>:</p>
@@ -634,7 +634,7 @@ $$\mathrm{RND}(x) \;=\; \log\!\left(\frac{\rho_{\text{local}}(x)}{\frac{1}{k}\su
 <tbody>
 <tr><td>架构</td><td>单模型同会话反复对抗</td><td>多模型独立 session 采样</td></tr>
 <tr><td>对应文献最弱形式</td><td>tit-for-tat MAD / Self-Refine 单模型循环</td><td>X-MAS / AceMAD 异构 + cross-session ensemble</td></tr>
-<tr><td>Martingale 定理预测</td><td>$\mathbb{E}[B_{t+1}|\mathcal{F}_t] = B_t$ (期望不增益)</td><td>$\mathbb{E}[B_{t+1}|\mathcal{F}_t] \geq B_t + \mu$, $\mu &gt; 0$ (正漂移)</td></tr>
+<tr><td>Martingale 定理预测</td><td>\(\mathbb{E}[B_{t+1}|\mathcal{F}_t] = B_t\) (期望不增益)</td><td>\(\mathbb{E}[B_{t+1}|\mathcal{F}_t] \geq B_t + \mu\), \(\mu &gt; 0\) (正漂移)</td></tr>
 <tr><td>Sycophancy 风险</td><td>高 (Kim &amp; Khashabi: 反驳框架直接命中最坏情形)</td><td>低 (独立 session 无锚定)</td></tr>
 <tr><td>Nemeth 模拟异议风险</td><td>高 (devil's advocate 同构)</td><td>低 (异质源 ≈ 真实少数派)</td></tr>
 </tbody>
@@ -646,7 +646,7 @@ $$\mathrm{RND}(x) \;=\; \log\!\left(\frac{\rho_{\text{local}}(x)}{\frac{1}{k}\su
 <thead><tr><th>维度</th><th>证据</th></tr></thead>
 <tbody>
 <tr><td>架构层 SOTA</td><td><span class="tag tag-strong">支持</span> 已是事实标准:Sakana v2 / Kosmos / FARS / Fugu 都按角色路由异质模型</td></tr>
-<tr><td>理论层</td><td><span class="tag tag-strong">支持</span> AceMAD 的 $\mu &gt; 0$ 子鞅、Demystifying MAD 的两机制论 (diversity + confidence)</td></tr>
+<tr><td>理论层</td><td><span class="tag tag-strong">支持</span> AceMAD 的 \(\mu &gt; 0\) 子鞅、Demystifying MAD 的两机制论 (diversity + confidence)</td></tr>
 <tr><td>实证 (diversity)</td><td><span class="tag tag-mid">支持</span> Wisdom and Delusion: 跨会话集成达理论上界 95%;R-Diverse 警告同会话 Local/Surface 幻觉</td></tr>
 <tr><td>实证 (anti-sycophancy)</td><td><span class="tag tag-strong">支持</span> Ben Natan: 所有前沿模型偏向最后立场,跨会话本质规避</td></tr>
 <tr><td>实证 (直接对照)</td><td><span class="tag tag-weak">空白</span> 2026 无任何论文做"异质跨会话 vs 同质同会话"的严格对照,且控制 token 预算</td></tr>
@@ -659,7 +659,7 @@ $$\mathrm{RND}(x) \;=\; \log\!\left(\frac{\rho_{\text{local}}(x)}{\frac{1}{k}\su
 <div class="good">
 <strong>用户 refined 方向正确,且在 2026 年获得了比 2025 末更强的理论与经验支持</strong>:
 <ol>
-<li>AceMAD 给出了 $\mu &gt; 0$ 这个形式化的"异构带来信息增益"陈述</li>
+<li>AceMAD 给出了 \(\mu &gt; 0\) 这个形式化的"异构带来信息增益"陈述</li>
 <li>Wisdom and Delusion 给出了"跨会话集成 ≈ 理论上界 95%"这个最干净的经验数字</li>
 <li>三大 SOTA autoresearch 系统 (Sakana v2 / Kosmos / FARS) 都已采用异构架构</li>
 </ol>
@@ -676,15 +676,15 @@ $$\mathrm{RND}(x) \;=\; \log\!\left(\frac{\rho_{\text{local}}(x)}{\frac{1}{k}\su
 
 <h3>6.1 最小可发表 ablation</h3>
 
-<p>受 Si 2026 启示,设计 <strong>2 × 2 × 3 因子</strong>(条件 × 多样性源 × 评估层),固定总 token 预算 $B$:</p>
+<p>受 Si 2026 启示,设计 <strong>2 × 2 × 3 因子</strong>(条件 × 多样性源 × 评估层),固定总 token 预算 \(B\):</p>
 
 <table>
 <thead><tr><th>Cell</th><th>采样模式</th><th>多样性源</th></tr></thead>
 <tbody>
 <tr><td>C0 (baseline)</td><td>单模型单 session 单次</td><td>无</td></tr>
-<tr><td>C1 (Pingpong)</td><td>单模型同 session $k$ 轮对抗</td><td>会话内 persona</td></tr>
-<tr><td>C2 (Cross-session same)</td><td>同模型 $k$ 个独立 session</td><td>仅采样噪声</td></tr>
-<tr><td>C3 (Cross-session cross-model)</td><td>$\{M_1, \dots, M_k\}$ 跨家族</td><td>异构 + 采样</td></tr>
+<tr><td>C1 (Pingpong)</td><td>单模型同 session \(k\) 轮对抗</td><td>会话内 persona</td></tr>
+<tr><td>C2 (Cross-session same)</td><td>同模型 \(k\) 个独立 session</td><td>仅采样噪声</td></tr>
+<tr><td>C3 (Cross-session cross-model)</td><td>\(\{M_1, \dots, M_k\}\) 跨家族</td><td>异构 + 采样</td></tr>
 <tr><td>C4 (Same-session cross-model)</td><td>同 session 多模型辩论</td><td>异构但同上下文</td></tr>
 </tbody>
 </table>
@@ -739,7 +739,7 @@ $$\mathrm{RND}(x) \;=\; \log\!\left(\frac{\rho_{\text{local}}(x)}{\frac{1}{k}\su
 <ol>
 <li><strong>首次</strong>将"异构性"与"采样多样性"在 token 预算控制下解耦</li>
 <li><strong>首次</strong>系统验证 Si 2026 ideation-execution gap 在多 LLM 设置下的存在性</li>
-<li>给出 $\mu(\text{异构})$ 在不同任务类型下的经验估计</li>
+<li>给出 \(\mu(\text{异构})\) 在不同任务类型下的经验估计</li>
 </ol>
 
 <hr>
