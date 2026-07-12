@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>顶会成稿路线图:异构性 × 采样多样性解耦消融 (2026-07-12)</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root { --fg:#1a1a1a; --muted:#666; --bg:#fafafa; --accent:#0a5; --warn:#c70; --bad:#c33; --code:#f0f0f0; --border:#ddd; }
+body { max-width: 920px; margin: 2em auto; padding: 0 1.5em; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; line-height: 1.7; color: var(--fg); background: var(--bg); }
+h1 { border-bottom: 3px solid var(--fg); padding-bottom: 0.3em; }
+h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.2em; margin-top: 2em; }
+h3 { color: #333; margin-top: 1.5em; }
+h4 { color: #555; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.93em; }
+th, td { border: 1px solid var(--border); padding: 0.5em 0.7em; text-align: left; vertical-align: top; }
+th { background: #eee; }
+code { background: var(--code); padding: 0.1em 0.4em; border-radius: 3px; font-size: 0.9em; }
+blockquote { border-left: 4px solid var(--accent); padding: 0.4em 1em; margin: 1em 0; background: #fff; color: #333; }
+.warn { background: #fff8e0; border-left: 4px solid var(--warn); padding: 0.4em 1em; margin: 1em 0; }
+.bad { background: #fee; border-left: 4px solid var(--bad); padding: 0.4em 1em; margin: 1em 0; }
+.good { background: #efe; border-left: 4px solid var(--accent); padding: 0.4em 1em; margin: 1em 0; }
+.muted { color: var(--muted); font-size: 0.92em; }
+a { color: #058; }
+hr { border: 0; border-top: 2px dashed #ccc; margin: 2.5em 0; }
+.toc { background: #fff; border: 1px solid var(--border); padding: 1em 1.5em; border-radius: 6px; }
+.toc ol { margin: 0.3em 0; }
+.meta { color: var(--muted); font-size: 0.92em; }
+.tag { display: inline-block; padding: 0.05em 0.5em; border-radius: 3px; font-size: 0.8em; margin-right: 0.3em; }
+.tag-strong { background: #cea; color: #042; }
+.tag-mid { background: #fec; color: #630; }
+.tag-weak { background: #fcc; color: #600; }
+.tag-verified { background: #cde; color: #024; }
+</style>
+</head>
+<body>
+
+<h1>顶会成稿路线图<br>
+<span style="font-size:0.65em; font-weight:normal;">"异构性 × 采样多样性"解耦消融:查新、门槛证据、修订实验设计与投稿时间表 (2026-07-12)</span></h1>
+
+<p class="meta">
+<strong>报告日期</strong>: 2026-07-12 ·
+<strong>基础</strong>: 本仓库 <code>report.html</code> (2026-05-15 文献综合) 的后续 ·
+<strong>方法</strong>: deep-research 工作流 (6 路检索 → 29 来源 → 110 条候选声明 → 25 条进入 3 票对抗核查 → 22 确认 / 3 否决) + 会议日期人工补核 ·
+<strong>核心问题</strong>: 如何把 pingpong / novelty collapse 方向做成顶会论文
+</p>
+
+<div class="toc">
+<strong>目录</strong>
+<ol>
+<li><a href="#exec">执行摘要</a></li>
+<li><a href="#scoop">查新 / Scoop Check(2026-05 以来)</a></li>
+<li><a href="#threats">证据格局的变化:三面夹击</a></li>
+<li><a href="#bar">顶会门槛的直接证据</a></li>
+<li><a href="#humanstudy">Human Study 硬性规范与统计功效</a></li>
+<li><a href="#venues">投稿窗口(截至 2026-07-12 核实)</a></li>
+<li><a href="#design">修订版实验设计 (v2)</a></li>
+<li><a href="#rebuttal">预期审稿人质疑与应对</a></li>
+<li><a href="#timeline">成稿时间表</a></li>
+<li><a href="#sources">来源与核查注记</a></li>
+</ol>
+</div>
+
+<h2 id="exec">1. 执行摘要</h2>
+
+<ol>
+<li><strong>空白仍然开放,但窗口在收窄。</strong>逐一核验了 2026 年 1–7 月最接近的六篇论文(§2),没有任何一篇同时具备:(a) 异构模型混池 (b) 与采样多样性的受控对照 (c) token 预算配平 (d) 创意/novelty 端点。"解耦消融 + 创意端点 + 执行端验证"这一组合仍然是可主张的首创。但"token 核算下比较多样化方法"的方法学包装已被 Anchorless Diversification [2605.30150] 占位,scoop 风险在 8–10 月持续存在,投稿前必须再查新一轮。</li>
+<li><strong>叙事必须换挡:从"证明异构性赢"改为"裁决三种多样性来源"。</strong>2026 年上半年出现了三面夹击(§3):提示词干预可能已足够 [2602.20408]、算力配平后单智能体可能占优 [2604.02460]、同质化在不同模型间高度一致 [2607.01233]。"异构性必胜"的宣传式论文会被任何一面击穿;而<strong>结果无关 (outcome-agnostic) 的因子分解设计</strong>——无论哪个来源赢都产出结论——才是可辩护的贡献,而且恰好回应了审稿人在同主题论文上实际提出过的质疑(§4)。</li>
+<li><strong>门槛在"正面评审"之上。</strong>"Stop Overvaluing MAD" 在 NeurIPS 2025 position track 拿到 7/8/6 仍被拒,审稿意见点名要求:机制解释、任务-模型兼容性分析、成本/编排开销核算 [OpenReview tMJvb9JDsd]。同期,Si 2024 (ICLR 2025) 与 Si 2026 执行差距论文 (<strong>已确认 ICLR 2026 poster 接收</strong>,更新旧报告中"待核实"状态) 证明:受控 human study + 执行端验证的路线是顶会认可的。</li>
+<li><strong>推荐目标:ICLR 2027(预计 2026 年 9 月下旬截稿)为主,ARR 2026-10-12 周期为备。</strong>NeurIPS 2026 已截止(5 月初);AAAI-27 全文截止 2026-07-28,仅剩两周,不可行;经 ARR 赶 EACL 2027 需在 08-03 提交,三周内完不成可信实验,不建议。约 2.5 个月的跑道足以完成"核心 2×2 + 强基线 + 自动化端点 + 中等规模人评"的最小可信版本(§7、§9)。</li>
+<li><strong>成败假设要预注册:</strong>异构性收益必须在 CoT+persona 提示干预之上仍然存在(交互项检验)。若预实验显示提示干预已饱和多样性收益,论文叙事转向"异构性 × 提示干预的交互结构"或执行端差异——因子设计保证这两个方向都有可发表的结论。</li>
+</ol>
+
+<hr>
+
+<h2 id="scoop">2. 查新 / Scoop Check(2026-05 以来)</h2>
+
+<p>六篇最接近的候选逐一核验(全部经 3 票对抗核查,除注明外均 3-0 通过)。判据:是否同时具备 (a) 异构模型混池 (b) 采样多样性对照 (c) token 预算配平 (d) 创意/novelty 端点。</p>
+
+<table>
+<thead><tr><th>论文</th><th>做了什么</th><th>为什么不构成 scoop</th></tr></thead>
+<tbody>
+<tr><td><strong>The Cost of Consensus</strong><br>[arXiv:2605.00914, 2026-05]</td><td>孤立自纠错 vs 无引导同质 MAD(7-8B,N=10,R=3,GSM-Hard/MMLU-Hard)</td><td>只有同质团队;端点是推理准确率,非创意多样性</td></tr>
+<tr><td><strong>ARMOR-MAD</strong><br>[arXiv:2606.13197, 2026-06-11]</td><td>training-free 异构 MAD(gpt-4o-mini + deepseek-v3 + qwen-plus)</td><td>异构池混入更强模型(能力混淆);消融只隔离自身组件,无采样多样性对照;端点是准确率</td></tr>
+<tr><td><strong>Demystifying MAD</strong><br>[arXiv:2601.19921, 2026-01]</td><td>置信度与多样性两因素对辩论收益的作用分析</td><td>多样性干预是<em>同质模型</em>的采样侧初始化修复,未触及模型异构性</td></tr>
+<tr><td><strong>Anchorless Diversification</strong><br>[arXiv:2605.30150, 2026-05-28]</td><td>full-pipeline token accounting 下比较单模型多样化方法</td><td>全部方法为单模型推理时控制,按模型分别报告,无跨模型混池;且"成本核算"弱于"预算配平"</td></tr>
+<tr><td><strong>校准瓶颈</strong><br>[arXiv:2605.11128, 2026-05]</td><td>14 模型:多样性塌缩归因于概率分布 order/shape 失校准</td><td>单模型解码层分析,无多智能体/多模型设定</td></tr>
+<tr><td><strong>Deng/Brucks/Toubia</strong><br>[arXiv:2602.20408, 2026-02]</td><td>99 人类 vs 99 独立 LLM 会话的创意多样性对照 + 提示干预</td><td>全部为单模型提示词干预,无异构模型、无 MAD</td></tr>
+</tbody>
+</table>
+
+<div class="good">
+<strong>查新判决</strong> <span class="tag tag-verified">6 项核验均 3-0</span>:核心空白截至 2026-07-12 未被占据。但注意 caveat:核验主要基于标题/摘要/HTML(部分 arXiv 直连被代理阻断),附录级别的异构消融不能 100% 排除;cs.MA 与 OpenReview 在审工作未全覆盖。<strong>投稿前(9 月中)必须再做一轮查新。</strong>
+</div>
+
+<h3>2.1 另需作为 prior work 处理的四篇(非 scoop,但必须引用并差异化)</h3>
+
+<table>
+<thead><tr><th>论文</th><th>关键结果</th><th>对本文的意义</th></tr></thead>
+<tbody>
+<tr><td><strong>Agent Scaling / K*</strong><br>[arXiv:2602.03794, 2026-02-03]</td><td>同质扩容强烈边际递减(输出相关性);<strong>2 个异构 agent 可匹敌 16 个同质 agent</strong>;信息论上界 + K* 有效通道数度量</td><td>异构性假设的最强理论侧支持;但全部在封闭式准确率基准 (GSM8K/ARC/MMLU 等),无创意端点、无 token 配平消融</td></tr>
+<tr><td><strong>算力配平批判</strong><br>[arXiv:2604.02460, 2026-04]</td><td>thinking-token 配平 (100–10k) 后单智能体匹敌或超过五种 MAS 架构;DPI 论证:每次 agent 间交接只会损失信息;并报告 API token 预算控制的方法学陷阱 (Gemini 2.5)</td><td>token 配平设计的直接先例与方法学警示;其边界条件(上下文利用退化时 MAS 才有利)是本文必须回应的框架</td></tr>
+<tr><td><strong>执行引导搜索</strong><br>[arXiv:2601.14525, 2026-01, Si 等]</td><td>自动执行器 + 大规模并行 GPU 验证;执行奖励 RL 导致 <strong>mode collapse</strong>(收敛到简单 idea,均值升、上界不升);进化搜索 10 轮内超 GRPO 基线 (69.4% vs 48.0%);前沿 LLM 采样<strong>早期饱和</strong></td><td>双刃:执行端自动验证的基础设施已存在(部分占位方法论),但其"单模型采样饱和"结果恰是测试异构性能否打破饱和的直接动机;可复用其执行器思路做廉价 L3</td></tr>
+<tr><td><strong>Research-taste 同质化</strong><br>[arXiv:2607.01233, 2026-07]</td><td>11,683 篇论文构建评估框架;人类 idea 仅 12.1% 落入 bridge 类,主流 LLM 为 <strong>47.1–64.2%</strong>;同质化<strong>跨模型一致</strong>;开启 thinking 模式反而加重</td><td>对异构性假设的最重威胁(见 §3);同时其框架可作为本文的<strong>免人评的廉价 L1 度量仪器</strong></td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="threats">3. 证据格局的变化:三面夹击</h2>
+
+<p>相对 5 月报告,支持面变强了,但反对面出现了三条新战线。论文若写成"异构性必胜"的 advocacy,会被其中任何一条击穿。</p>
+
+<h3>3.1 支持面(更新)</h3>
+
+<ul>
+<li><strong>同会话同质 pingpong 的失败机制已被量化</strong> <span class="tag tag-verified">3-0/2-1/3-0/3-0</span>:无引导同质 MAD 比孤立自纠错多耗 <strong>2.1–3.4×</strong> token 而准确率持平或更低;三条失败路径——谄媚从众 (modal adoption 最高 85.5%)、上下文脆弱 (最高 70.0%)、共识塌缩 (oracle gap 最高 32.3pp)。最扎眼的数字:Ministral-3-8B/GSM-Hard 上正确答案已存在于独立采样池中 53.0%,但辩论后团队只拿到 20.7%——<strong>价值在独立采样,辩论在毁掉它</strong> [2605.00914]。这是"跨会话独立采样 &gt; 同会话对抗"在准确率端点上的最强已发表支撑,本文把它扩展到创意端点。</li>
+<li><strong>同质辩论放大相关错误</strong>:ARMOR-MAD 明确论证 "fixed debate pipelines … can amplify correlated errors among similar agents";Homo-MAD (全 gpt-4o-mini) 显著劣于单模型 CoT [2606.13197]。⚠️ 但不可转述为"异构性是必要条件"——该强化表述被核查否决 (1-2)。</li>
+<li><strong>单模型采样有天花板的两条证据</strong>:独立 LLM 采样的多样性低于独立人类 [2602.20408];塌缩根源是分布失校准而非采样启发式 [2605.11128](推论:换采样策略救不了,需要换分布来源)。</li>
+</ul>
+
+<h3>3.2 三面夹击(每一条都要在实验矩阵里正面回应)</h3>
+
+<table>
+<thead><tr><th>#</th><th>威胁</th><th>内容</th><th>实验矩阵中的应对</th></tr></thead>
+<tbody>
+<tr><td><strong>T1</strong></td><td><strong>提示干预可能已足够</strong><br>[2602.20408]</td><td>双机制分解:个体层 <em>fixation</em>(早期输出约束后续)+ 集体层<em>知识分区缺失</em>(独立采样共享同一分布)。CoT 降 fixation + 普通 persona 做知识分区,组合后<strong>单模型多样性超过人类 26%</strong>。审稿人第一问必然是:"为什么不直接用提示干预?"</td><td>把 CoT+persona 作为<strong>强基线单元格</strong>;预注册交互检验:异构性在提示干预之上是否仍有增量</td></tr>
+<tr><td><strong>T2</strong></td><td><strong>算力配平后单智能体占优</strong><br>[2604.02460]</td><td>token 配平后单 agent 匹敌/超过 MAS;DPI:agent 间每次交接只损失信息</td><td>本文的 token 配平比其更严格(预算相等而非成本核算);并测试其边界条件是否在<em>开放式创意任务</em>上失效(DPI 论证针对"传递既有信息",而创意任务的目标是覆盖分布支撑集——这正是理论辩护点)</td></tr>
+<tr><td><strong>T3</strong></td><td><strong>同质化跨模型一致</strong><br>[2607.01233]</td><td>不管哪家模型,idea 都集中在 bridge 类模板 (47.1–64.2% vs 人类 12.1%);thinking 模式加重</td><td>最危险的一条:若各家模型塌缩到<strong>同一个</strong>模式,异构混池的并集增益趋零。应对:预实验先测各模型输出分布的<strong>两两重叠度</strong>(而非各自的熵)——若重叠高,论文的贡献恰好变成"首次证明异构性不救 novelty collapse",这同样可发表,且更反直觉</td></tr>
+</tbody>
+</table>
+
+<div class="good">
+<strong>叙事换挡的结论</strong>:研究问题从"异构性能否逃逸 novelty collapse"升级为——<br>
+<em>"在严格 token 配平下,三种多样性来源(采样噪声 / 提示干预 / 模型异构)各买到多少多样性与质量,其收益结构是否可加,以及哪些在执行端验证后幸存?"</em><br>
+因子设计保证任何结果组合都是贡献;这恰好也是 §4 中审稿人对同主题论文点名要求的东西(机制、兼容性、成本核算)。
+</div>
+
+<hr>
+
+<h2 id="bar">4. 顶会门槛的直接证据</h2>
+
+<h3>4.1 反面案例:高分被拒 <span class="tag tag-verified">OpenReview 逐字核验 3-0</span></h3>
+
+<p><strong>"Stop Overvaluing Multi-Agent Debate"</strong> [arXiv:2502.08788] 在 NeurIPS 2025 position paper track 获 <strong>7 / 8 / 6</strong>(置信度均 4)仍被拒 [OpenReview tMJvb9JDsd]。审稿意见是本文的免费需求文档:</p>
+
+<ul>
+<li>Heter-MAD(随机混合 GPT-4o-mini 与 LLaMA 3.1)被批"缺乏原则性动机与机制分析"、"忽略任务-模型兼容性"、"未解释异构模型如何达成更好共识"——<strong>解耦消融正是回应这一条的实验形态</strong>;</li>
+<li>5 方法 × 9 基准 × 4 基础模型被赞 "unusually robust",但 4 个模型的池子仍被指泛化性不足(闭源、非英语场景)——校准了审稿人对该主题实验矩阵的最低期望;</li>
+<li>被点名缺失对快速演进前沿的引用 (ACC-Debate, DebUnc)——related work 必须追到投稿前一个月;</li>
+<li>审稿人明确要求:异构性的<strong>成本/编排开销/不一致性</strong>的可行性分析,以及"何时单 agent 就够"的预测性指标——token 配平核算直接回应前者,K* 式度量 [2602.03794] 可回应后者。</li>
+</ul>
+
+<h3>4.2 正面案例:这条方法学路线已两次通过 ICLR</h3>
+
+<ul>
+<li><strong>Si 2024</strong> [arXiv:2409.04109] — <strong>ICLR 2025 接收</strong>。模板要素:100+ 合格 NLP 研究者产出基线 idea 并盲评;风格标准化 + 主题分布匹配的混淆控制;显著性检验。其明确列出的 open problems("LLM 生成缺乏多样性、自评不可靠")就是本文的动机引文。</li>
+<li><strong>Si 2026 执行差距</strong> [arXiv:2506.20803] — <strong>已确认 ICLR 2026 poster 接收 (OpenReview: Fllp8l6Puy)</strong>,更新旧报告中"submitted、待核实"的状态。43 位专家每人 100+ 小时执行随机分配的 idea,58 位专家盲评 43 个成品;LLM idea 四指标全线显著掉分 (p&lt;0.05),排名反转;机制:缺基线/消融、资源需求高、泛化差——这些弱点只有执行后才可见。<strong>执行端验证方法论已是 peer-review 认可的硬通货。</strong></li>
+</ul>
+
+<div class="warn">
+<strong>综合含义</strong>:position/advocacy 形态在此主题上天花板低(4.1);受控实验 + human study + 执行端验证形态已被顶会两次盖章(4.2)。本文应做成<strong>完整实证论文</strong>,把观点让位给因子设计。
+</div>
+
+<hr>
+
+<h2 id="humanstudy">5. Human Study 硬性规范与统计功效</h2>
+
+<h3>5.1 统计功效:常规规模远远不够 <span class="tag tag-verified">RoSE [arXiv:2212.07981, ACL 2023]</span></h3>
+
+<ul>
+<li>NLG 界常见人评规模 50–100 样本,只有在系统差异非常大时才有 0.80 功效;<strong>系统差异 1–2 分以内时,100 样本功效仅 ~0.20,500 样本也只有 ~0.50</strong>。</li>
+<li>本文的相邻单元格(如 C2 跨会话同模型 vs C3 跨会话异构)差异预期是小-中效应——<strong>整体 Likert 打分在可行预算内无法区分</strong>。</li>
+<li>对策:(a) 细粒度可分解协议(ACU 式原子标注)替代整体打分,功效更高;(b) 人评只用于<strong>高低差最大的单元格对</strong>,相邻单元格用自动度量 + 大 N;(c) 报告标注者一致性 (Krippendorff's α)。</li>
+<li>额外警告:RLHF 调优模型会"过拟合"无约束人评(风格偏好污染)——novelty 评估要用有针对性、受约束的量表,LLM-as-judge 必须报告与人评的相关性。</li>
+</ul>
+
+<h3>5.2 合规清单(投稿时缺失 = 桌拒)</h3>
+
+<table>
+<thead><tr><th>要求</th><th>ARR (Responsible NLP Checklist)</th><th>NeurIPS/ICLR 系 (Paper Checklist)</th></tr></thead>
+<tbody>
+<tr><td>清单本身</td><td>强制;系统性不回答 → <strong>桌拒</strong></td><td>强制;缺失 → <strong>桌拒</strong>;答案随终稿公开</td></tr>
+<tr><td>IRB</td><td>D4:须说明 IRB 批准或豁免认定</td><td>独立 IRB 条款:风险描述、披露、批准;初稿匿名(不写机构名)</td></tr>
+<tr><td>被试报酬</td><td>D2:招募渠道 + 报酬充分性论证(相对居住国)</td><td>完整指令文本 + 界面截图 + 报酬细节;≥ 数据采集地最低工资</td></tr>
+<tr><td>统计报告</td><td>C 节:描述统计 + 误差量化(多 seed 误差棒 / Clopper–Pearson CI)</td><td>主结论必须有误差棒/CI/显著性,并说明变异来源与计算方法</td></tr>
+<tr><td>局限声明</td><td>A1:强假设 + 违背稳健性(声明解耦消融的适用范围)</td><td>No/NA 可接受但需理由;审稿人被要求纳入评审考量</td></tr>
+</tbody>
+</table>
+
+<div class="bad">
+<strong>时间线含义</strong>:IRB(或机构等效审查)通常需要 2–6 周,<strong>必须 7 月内启动</strong>,否则 9 月的 ICLR 窗口赶不上合规的人评数据。若走豁免路径(专家评审型低风险研究常可豁免),也要拿到书面豁免认定。
+</div>
+
+<hr>
+
+<h2 id="venues">6. 投稿窗口(截至 2026-07-12 核实)</h2>
+
+<table>
+<thead><tr><th>目标</th><th>关键日期</th><th>可行性</th><th>核实状态</th></tr></thead>
+<tbody>
+<tr><td>NeurIPS 2026</td><td>2026 年 5 月初已截止(会期 2026-12,悉尼)</td><td>❌ 已关闭</td><td>官网/多源一致</td></tr>
+<tr><td>AAAI-27 主 track</td><td>摘要 <strong>2026-07-21</strong>,全文 <strong>2026-07-28</strong> (UTC-12);会期 2027-02,蒙特利尔</td><td>❌ 两周内无法完成可信实验</td><td>官网 CFP(搜索确认;官网直连被代理阻断)</td></tr>
+<tr><td>ARR 2026-08-03 → <strong>EACL 2027</strong></td><td>提交 08-03;commitment 截止 10-11(EACL 官方确认这是唯一可行周期;注意 08-03 是从 08-06 修正后的日期)</td><td>⚠️ 三周跑道,只够综述式或残缺实验,<strong>不建议</strong></td><td><span class="tag tag-verified">ARR 官方日期表 3-0</span></td></tr>
+<tr><td><strong>ICLR 2027(主推)</strong></td><td>官网日期页尚未可达;按 2025/2026 惯例,摘要 ~9 月中下旬、全文 ~9 月下旬 (AoE)</td><td>✅ ~2.5 个月跑道</td><td>⚠️ <strong>待官方 CFP,8 月初必须盯</strong></td></tr>
+<tr><td><strong>ARR 2026-10-12 周期(备选)</strong></td><td>提交 10-12;周期止 12-20;下游会议届时公布(*ACL 2027 系)</td><td>✅ 天然的 fallback:ICLR 未中或未赶上则转投</td><td><span class="tag tag-verified">ARR 官方日期表 3-0</span></td></tr>
+<tr><td>ICML 2027</td><td>惯例 ~2027-01 截稿</td><td>✅ 二级 fallback</td><td>未核实,12 月再查</td></tr>
+</tbody>
+</table>
+
+<p><strong>会场匹配度</strong>:ICLR 对"LLM 行为的受控实证 + human study"接收习惯最好(Si 2024、Si 2026、Kirk 2023 全在 ICLR);ARR/*ACL 适合偏创意生成与人评协议的版本。同一批实验可以两投两种剪裁(注意 dual submission 政策,ICLR 拒稿后再进 ARR 无冲突)。</p>
+
+<hr>
+
+<h2 id="design">7. 修订版实验设计 (v2)</h2>
+
+<p>相对旧报告 §6 的 5-cell 设计,按 §3 的三面夹击与 §4 的审稿意见修订。</p>
+
+<h3>7.1 核心因子矩阵:2×2 + 三个强基线</h3>
+
+<table>
+<thead><tr><th>Cell</th><th>设定</th><th>回应谁</th></tr></thead>
+<tbody>
+<tr><td><strong>A1</strong> 同质 × 同会话</td><td>单模型 pingpong/辩论 k 轮(原始假设的对照)</td><td>基线;预期复现 [2605.00914] 的失败机制</td></tr>
+<tr><td><strong>A2</strong> 同质 × 跨会话</td><td>同模型 k 个独立 session</td><td>隔离"采样多样性"</td></tr>
+<tr><td><strong>B1</strong> 异构 × 同会话</td><td>多模型同上下文辩论</td><td>隔离"异构性(有锚定)"</td></tr>
+<tr><td><strong>B2</strong> 异构 × 跨会话</td><td>多模型独立 session(refined 假设)</td><td>异构 + 采样</td></tr>
+<tr><td><strong>S1</strong> CoT+persona</td><td>单模型 + [2602.20408] 的组合提示干预,跨会话</td><td><strong>T1</strong>;成败假设的对照臂</td></tr>
+<tr><td><strong>S2</strong> diversity-aware init</td><td>[2601.19921] 的初始化修复</td><td>Demystifying MAD 的差异化</td></tr>
+<tr><td><strong>S3</strong> 最强单模型满预算</td><td>池中最强模型独占全部 token 预算 + self-consistency</td><td><strong>T2</strong>;[2604.02460] 与"异构队常输给最强成员"的质疑</td></tr>
+</tbody>
+</table>
+
+<p><strong>硬约束</strong>:(1) 所有 cell <strong>token 预算相等</strong>(比 [2605.30150] 的成本核算更强,写作时明确这一区别);注意 [2604.02460] 报告的 API thinking-token 控制陷阱,预实验先验证预算控制的保真度。(2) 异构池<strong>能力配平</strong>:选基准能力相近的跨家族模型,另设"混入强模型"臂作显式对照——直接修复 ARMOR-MAD 与 Heter-MAD 被批的能力混淆。(3) 多 seed + CI(合规清单 C 节)。</p>
+
+<h3>7.2 预注册的两个关键检验</h3>
+
+<ol>
+<li><strong>交互项(成败假设)</strong>:异构性收益是否在 S1 (CoT+persona) 之上仍显著?即检验 \( \Delta(\text{B2} - \text{S1}) \) 与加性预期的偏离。任何方向的结果都可发表:增量存在 → 异构性是独立的多样性来源;不存在 → 首次证明提示干预吸收了异构性收益(反直觉,同样是贡献)。</li>
+<li><strong>跨模型分布重叠(回应 T3)</strong>:先于主实验,测各模型输出在 [2607.01233] 分类框架下的两两重叠度。重叠度直接预测 B2 的上界——把它做成论文的<strong>机制章节</strong>:异构性收益 = f(模型间分布距离),这就是审稿人要的"何时异构才有用"的预测性指标。</li>
+</ol>
+
+<h3>7.3 三层端点(修订)</h3>
+
+<table>
+<thead><tr><th>层</th><th>度量</th><th>规模</th></tr></thead>
+<tbody>
+<tr><td><strong>L1 自动</strong></td><td>嵌入方差 / distinct-n / RND [2503.01508] + <strong>[2607.01233] 的 research-taste 框架</strong>(免人评的模式塌缩仪器)+ 两两重叠度</td><td>全部 cell,大 N,多 seed</td></tr>
+<tr><td><strong>L2 人评</strong></td><td>细粒度可分解量表(非整体 Likert;§5.1),盲评,报 α 一致性;LLM-judge 同步跑并报与人评相关性</td><td><strong>只做效应量最大的 3–4 组对比</strong>(功效分析定 n;预期 ≥150 条/组)</td></tr>
+<tr><td><strong>L3 执行端</strong></td><td>两档:(a) 廉价自动执行——借 [2601.14525] 思路,在小规模可自动验证域(如 nanoGPT 级实验、可运行的 method idea)执行 top-k idea,报 L1→L3 保留率;(b) 若资源允许,Si 2026 式小规模人类执行(5–8 idea × 高低差 cell)</td><td>(a) 每 cell top-10;(b) 可选</td></tr>
+</tbody>
+</table>
+
+<div class="warn">
+<strong>与 [2601.14525] 的差异化必须写明</strong>:该文用执行反馈<em>优化</em>单模型 ideation(并发现 RL 导致 mode collapse);本文用执行作<em>多样性来源的裁决端点</em>,并把它的"单模型采样早期饱和"结果引为动机——异构性能否打破饱和正是本文回答的问题。
+</div>
+
+<h3>7.4 标题方向(v2)</h3>
+
+<blockquote style="font-style:italic;">
+"Where Does Diversity Come From? Decoupling Model Heterogeneity, Sampling, and Prompting under Matched Token Budgets — with Execution-Grounded Validation"
+</blockquote>
+
+<hr>
+
+<h2 id="rebuttal">8. 预期审稿人质疑与应对</h2>
+
+<table>
+<thead><tr><th>#</th><th>预期质疑(来源)</th><th>应对</th></tr></thead>
+<tbody>
+<tr><td>R1</td><td>"CoT+persona 已能超人类多样性,异构性多余" [2602.20408]</td><td>S1 是显式对照臂 + 预注册交互检验;无论结果方向都有结论(§7.2)</td></tr>
+<tr><td>R2</td><td>"token 配平后单 agent 更优,MAS 增益是算力假象" [2604.02460]</td><td>S3 臂 + 预算相等(严于成本核算);理论回应:DPI 针对信息传递,创意任务目标是支撑集覆盖,二者的目标函数不同——并用实验裁决</td></tr>
+<tr><td>R3</td><td>"各家模型塌缩到同一模式,混池并集增益为零" [2607.01233]</td><td>机制章节:重叠度 → 异构收益的预测关系;若增益确实为零,论文结论转为"异构性不救 novelty collapse"(照常可发表)</td></tr>
+<tr><td>R4</td><td>"异构池增益来自混入强模型"(ARMOR-MAD 被批的混淆;Heter-MAD 被批"随机混合无原则")</td><td>能力配平池为主 + 强模型混入臂为显式对照;按任务-模型兼容性报告分解</td></tr>
+<tr><td>R5</td><td>"人评规模不足以支撑相邻条件的差异" [2212.07981]</td><td>功效分析先行;人评只裁决大效应对比;细粒度协议;自动度量承担相邻条件</td></tr>
+<tr><td>R6</td><td>"ideation 评分虚高,执行后会反转" [2506.20803]</td><td>L3 内建;报告 L1→L3 保留率斜率(本身是次要贡献)</td></tr>
+<tr><td>R7</td><td>"related work 缺最近三个月的 X"(Stop Overvaluing MAD 被批缺 ACC-Debate/DebUnc)</td><td>投稿前 2 周冻结前做最后一轮查新(§9 排入日程)</td></tr>
+<tr><td>R8</td><td>"异构编排的成本、延迟、不一致性在实践中不可行"(tMJvb9JDsd 审稿人原话)</td><td>token 配平天然产出成本核算表;附编排开销与失败率统计</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="timeline">9. 成稿时间表(2026-07-13 → ICLR 2027,备 ARR 10-12)</h2>
+
+<table>
+<thead><tr><th>周</th><th>里程碑</th></tr></thead>
+<tbody>
+<tr><td><strong>07-13 ~ 07-26</strong></td><td>① 提交 IRB/豁免申请(阻塞项,最先做);② 预实验:token 预算控制保真度验证 [2604.02460 的陷阱]、跨模型重叠度测量(§7.2-2)、效应量粗估 → 功效分析定 L2 规模;③ 冻结模型池与任务集(建议 2 个创意域 + 1 个 research ideation 域)</td></tr>
+<tr><td><strong>07-27 ~ 08-23</strong></td><td>核心 2×2 + S1/S2/S3 全矩阵跑完 L1(多 seed);机制分析(重叠度 → 增益回归);中期决策点:根据交互检验初步结果锁定论文主叙事(增量存在 / 不存在两版大纲)</td></tr>
+<tr><td><strong>08-24 ~ 09-06</strong></td><td>L2 人评(盲评平台、细粒度量表、α 一致性);L3(a) 自动执行端跑 top-k;开始写 intro/related work</td></tr>
+<tr><td><strong>09-07 ~ 09-13</strong></td><td>全文初稿;合规清单逐项填写(§5.2);图表定稿</td></tr>
+<tr><td><strong>09-14 ~ 截稿</strong></td><td>内部红队评审(按 §8 的 R1–R8 逐条自检);<strong>最后一轮查新</strong>(scoop check + related work 补最近论文);ICLR 2027 摘要与全文提交(具体日期以 8 月官方 CFP 为准)</td></tr>
+<tr><td><strong>fallback</strong></td><td>若 ICLR 窗口有变或实验不达标:ARR 2026-10-12 提交(多出 ~4 周,可补 L3(b) 人类执行小样本);ICML 2027 (~2027-01) 为二级备选</td></tr>
+</tbody>
+</table>
+
+<div class="warn">
+<strong>两个必须盯的外部事件</strong>:① 8 月初 ICLR 2027 官方 CFP 放出确切日期(当前 403 不可达,未核实);② 9 月中投稿前的最后查新——本轮已确认 6 篇非 scoop,但 cs.MA/OpenReview 在审论文有残余风险。
+</div>
+
+<hr>
+
+<h2 id="sources">10. 来源与核查注记</h2>
+
+<h4>10.1 本轮新增核心来源</h4>
+<ol>
+<li><em>The Cost of Consensus: Isolated Self-Correction Prevails Over Unguided Homogeneous Multi-Agent Debate</em>. <a href="https://arxiv.org/abs/2605.00914">arXiv:2605.00914</a>, 2026-05.</li>
+<li><em>ARMOR-MAD: Training-free Heterogeneous Multi-Agent Debate</em>. <a href="https://arxiv.org/abs/2606.13197">arXiv:2606.13197</a>, 2026-06-11.</li>
+<li>Zhu X. et al. <em>Demystifying Multi-Agent Debate: The Role of Confidence and Diversity</em>. <a href="https://arxiv.org/abs/2601.19921">arXiv:2601.19921</a>, 2026-01.</li>
+<li><em>Anchorless Diversification</em>. <a href="https://arxiv.org/abs/2605.30150">arXiv:2605.30150</a>, 2026-05-28.</li>
+<li><em>Order and Shape Miscalibration as the Root of LLM Diversity Collapse</em>. <a href="https://arxiv.org/abs/2605.11128">arXiv:2605.11128</a>, 2026-05.</li>
+<li>Deng, Brucks, Toubia. <em>Independent Sampling, Fixation, and Knowledge Partitioning in LLM Creativity</em>. <a href="https://arxiv.org/abs/2602.20408">arXiv:2602.20408</a>, 2026-02.(99 人类 vs 99 LLM 会话)</li>
+<li>Yang Y. et al. <em>Agent Scaling Laws and K*</em>. <a href="https://arxiv.org/abs/2602.03794">arXiv:2602.03794</a>, 2026-02-03.</li>
+<li><em>Compute-Normalized Comparison of Single-Agent vs Multi-Agent Systems</em>. <a href="https://arxiv.org/abs/2604.02460">arXiv:2604.02460</a>, 2026-04.</li>
+<li>Si C. et al. <em>Execution-Guided Search for AI Research Agents</em>. <a href="https://arxiv.org/abs/2601.14525">arXiv:2601.14525</a>, 2026-01.</li>
+<li><em>Research-Taste Homogenization Across LLMs</em>(11,683 论文框架). <a href="https://arxiv.org/abs/2607.01233">arXiv:2607.01233</a>, 2026-07.</li>
+<li>OpenReview. <em>Stop Overvaluing MAD 评审记录 (Reject, 7/8/6)</em>. <a href="https://openreview.net/forum?id=tMJvb9JDsd">forum tMJvb9JDsd</a>.</li>
+<li>Liu Y. et al. <em>RoSE / 人评统计功效</em>. <a href="https://arxiv.org/abs/2212.07981">arXiv:2212.07981</a>, ACL 2023.</li>
+<li>ACL Rolling Review. <em>Dates</em>. <a href="https://aclrollingreview.org/dates">aclrollingreview.org/dates</a>;<em>Responsible NLP Checklist</em>. <a href="https://aclrollingreview.org/responsibleNLPresearch/">responsibleNLPresearch</a>.</li>
+<li>NeurIPS. <em>Paper Checklist Guidelines</em>. <a href="https://neurips.cc/public/guides/PaperChecklist">neurips.cc/public/guides/PaperChecklist</a>;<em>2026 Dates</em>. <a href="https://neurips.cc/Conferences/2026/Dates">neurips.cc</a>.</li>
+<li>AAAI. <em>AAAI-27 Main Technical Track Call</em>. <a href="https://aaai.org/conference/aaai/aaai-27/main-technical-track-call/">aaai.org</a>.</li>
+<li>Si C., Yang D., Hashimoto T. <a href="https://arxiv.org/abs/2409.04109">arXiv:2409.04109</a> (ICLR 2025);Si C., Hashimoto T., Yang D. <a href="https://arxiv.org/abs/2506.20803">arXiv:2506.20803</a> (<strong>ICLR 2026 poster, OpenReview Fllp8l6Puy</strong>)。</li>
+<li>Ye et al. <em>X-MAS</em>. <a href="https://arxiv.org/abs/2505.16997">arXiv:2505.16997</a>(截至 2026-07 未见主会接收记录)。</li>
+</ol>
+
+<h4>10.2 对抗核查中被否决的表述(不可写入论文)</h4>
+<ol>
+<li>❌ "ARMOR-MAD 证明异构性是有效 MAD 的<strong>必要条件</strong>"(1-2 否决)——只能说其提供了动机性但受能力混淆的证据。</li>
+<li>❌ "Demystifying MAD 给出了同质辩论不可能改进的<strong>定理</strong>"(0-3 否决)——该文没有此定理;鞅上界仍引 Debate-or-Vote [arXiv:2508.17536]。</li>
+<li>❌ "升温采样无法恢复稀有有效选项、概率质量流向无效延续"(1-2 否决)——[2605.11128] 不支持这一强表述。</li>
+</ol>
+
+<h4>10.3 已知局限</h4>
+<ul>
+<li>六篇 scoop 候选全部是未经同行评审的 arXiv 预印本,量化数字(2.1–3.4×、85.5%、12.1% vs 47.1–64.2% 等)依赖各自单一实验配置,论文引用时须带设置限定词。</li>
+<li>部分论文全文因代理阻断未逐页核读,核验基于多路一致的摘要/HTML;附录级消融的残余不确定性存在但概率很低。</li>
+<li>ICLR 2027 / ICML 2027 确切日期未经官方页面核实(403);AAAI-27 日期来自搜索结果对官网 CFP 的转述。</li>
+</ul>
+
+<hr>
+
+<p class="meta" style="text-align: right;">
+报告完成:2026-07-12 · deep-research 工作流:112 子代理 / 29 来源 / 110 候选声明 / 22 确认 · 3 否决声明已隔离 · 会议日期人工补核 ·
+上游文档:<a href="report.html">report.html</a> (2026-05-15)
+</p>
+
+</body>
+</html>
